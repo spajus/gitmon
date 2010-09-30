@@ -4,6 +4,7 @@ Requirements:
 Python 2.6+
 Git
 crontab or other scheduling tool
+GitPython (easy_install gitpython)
 
 Note: 'git' and 'python' commands should be in crontab's PATH
 
