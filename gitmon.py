@@ -13,18 +13,39 @@ from git import *
 
 class Repository:
     def __init__(self, name, path):
-        self.repo = Repo(path)
         self.name = name
         self.path = path
         self.path_full = os.path.expanduser(path)
+        print self.path_full
+        self.repo = Repo(self.path_full)
     def check_status(self):
         if verbose: 
             print 'Checking repo: %s' % self.name
-        try:
-            info = self.repo.remotes.origin.fetch()
-            return "%s:\nAvailable updates: %s" % (self.path, len(info))
-        except Exception:
-            return "Failed checking for updates"
+        # try:
+        remote = self.repo.remotes.origin.fetch()
+        updates = []
+        for head in self.repo.heads:
+            for rem in self.repo.remotes.origin.refs:
+                if rem.remote_head == head.name:
+                    up = self.compare_commits(head.object, rem.object)
+                    if up:
+                        up.branch = head.name
+                        updates.append(up)
+                
+        return updates
+        # except Exception as e:
+        #             print "Failed checking for updates: %s" % e
+        #             raise e
+
+    def compare_commits(self, local, remote):
+        if local.hexsha == remote.hexsha:
+            return None
+        if local.committed_date < remote.committed_date:
+            return UpdateStatus(remote.message)
+
+class UpdateStatus:
+    def __init__(self, message):
+        self.message = message
 
 class Gitmon:
     
@@ -68,12 +89,16 @@ class Gitmon:
     def check(self):
         for repo in self.repos:
             st = repo.check_status() 
-            self.notify(repo, st)
+            if st:
+                mess = []
+                for up in st:
+                    mess.append('In %s: %s' % (up.branch, up.message))
+                self.notify(repo, '\n'.join(mess))
             
     def notify(self, repo, message):
           notif_cmd = self.config['notification.command'].split(' ')
           notif_cmd[notif_cmd.index('${status}')] = message
-          notif_cmd[notif_cmd.index('${name}')] = repo.name
+          notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % (repo.name, repo.path)
           proc = subprocess.Popen(notif_cmd, cwd=repo.path_full, stdout=subprocess.PIPE)
           output, _ = proc.communicate()
           retcode = proc.wait()        
