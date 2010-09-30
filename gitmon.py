@@ -8,6 +8,7 @@ Copyright (c) 2010 Tomas Varaneckas. All rights reserved.
 """
 import os
 import sys
+import subprocess
 from git import *
 
 class Repository:
@@ -15,11 +16,12 @@ class Repository:
         self.repo = Repo(path)
         self.name = name
         self.path = path
+        self.path_full = os.path.expanduser(path)
     def check_status(self):
         if verbose: 
             print 'Checking repo: %s' % self.name
         info = self.repo.remotes.origin.fetch()
-        print '%s %s' % (info, dir(info))
+        return "%s:\nAvailable updates: %s" % (self.path, len(info))
 
 class Gitmon:
     
@@ -62,7 +64,19 @@ class Gitmon:
             
     def check(self):
         for repo in self.repos:
-            repo.check_status()   
+            st = repo.check_status() 
+            self.notify(repo, st)
+            
+    def notify(self, repo, message):
+          notif_cmd = self.config['notification.command'].split(' ')
+          notif_cmd[notif_cmd.index('${status}')] = message
+          notif_cmd[notif_cmd.index('${name}')] = repo.name
+          proc = subprocess.Popen(notif_cmd, cwd=repo.path_full, stdout=subprocess.PIPE)
+          output, _ = proc.communicate()
+          retcode = proc.wait()        
+          if retcode != 0:
+              print 'Error while notifying: %s, %s' % (retcode, args)
+          print output
         
 verbose = False        
         
