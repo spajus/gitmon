@@ -1,0 +1,29 @@
+#main config
+monitor = gitmon,common-interfaces,svc-benefit,svc-card,svc-channel,svc-channel-data,ragnarok,lollypop
+notification.command = growlnotify -name ${name} -m ${status}
+
+#repositories
+gitmon.name = GitMon Repo
+gitmon.path = ~/Development/python/gitmon
+
+common-interfaces.name = common/interfaces
+common-interfaces.path = ~/Development/projects/common/interfaces
+
+svc-benefit.name = svc/benefit
+svc-benefit.path = ~/Development/projects/svc/benefit
+
+svc-card.name = svc/card
+svc-card.path = ~/Development/projects/svc/card
+
+svc-channel.name = svc/card
+svc-channel.path = ~/Development/projects/svc/channel
+
+svc-channel-data.name = svc/channel-data
+svc-channel-data.path = ~/Development/projects/svc/channel-data
+
+ragnarok.name = Ragnarok
+ragnarok.path = ~/Development/projects/front/management
+
+lollypop.name = Lollypop
+lollypop.path = ~/Development/projects/front/lollypop
+
