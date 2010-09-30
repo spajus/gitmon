@@ -20,8 +20,11 @@ class Repository:
     def check_status(self):
         if verbose: 
             print 'Checking repo: %s' % self.name
-        info = self.repo.remotes.origin.fetch()
-        return "%s:\nAvailable updates: %s" % (self.path, len(info))
+        try:
+            info = self.repo.remotes.origin.fetch()
+            return "%s:\nAvailable updates: %s" % (self.path, len(info))
+        except Exception:
+            return "Failed checking for updates"
 
 class Gitmon:
     
