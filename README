@@ -1,19 +1,37 @@
+== GitMon - The Git Repository Monitor ==
+
 == Installation ==
 
 Requirements:
 Python 2.6+
 Git
-crontab or other scheduling tool
 GitPython (easy_install gitpython)
+growlnotify (optional)
+crontab or other scheduling tool (optional)
+
 
 Note: 'git' and 'python' commands should be in crontab's PATH
 
-Copy gitmon.conf.example to ~/.gitmon.conf and edit it to your needs
-Set up a crontab with your prefered timing, i.e: 
+== Usage ==
+
+gitmon [-v] [--debug]
+
+You have two options for placing your configuration file:
+  1. Create ~/.gitmon.conf 
+  2. Put gitmon.conf anywhere you want and define GITMON_CONF env variable
+
+Refer to provided gitmon.conf.example when creating your configuration.
+
+You can set up a crontab with your prefered timing to execute gitmon 
+automatically, i.e: 
 
 * */5 * * /path/to/gitmon > /tmp/gitmon.log
 
 If you've done everything right, you should get some notifications.
+
+== Known Issues ==
+* When notify.new.branch is enabled, new branch notifications will repeat 
+untill you pull them.  
 
 == Contact ==
 Suggestions, improvements?

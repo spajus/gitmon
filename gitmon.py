@@ -16,26 +16,41 @@ class Repository:
         self.name = name
         self.path = path
         self.path_full = os.path.expanduser(path)
-        print self.path_full
         self.repo = Repo(self.path_full)
     def check_status(self):
         if verbose: 
             print 'Checking repo: %s' % self.name
-        # try:
-        remote = self.repo.remotes.origin.fetch()
         updates = []
-        for head in self.repo.heads:
-            for rem in self.repo.remotes.origin.refs:
-                if rem.remote_head == head.name:
-                    up = self.compare_commits(head.object, rem.object)
+        #get last commits in current remote ref
+        local_commits = {}
+        for rem in self.repo.remotes.origin.refs:
+            local_commits[rem.remote_head] = rem.object
+        try:
+            #fetch new data
+            remote = self.repo.remotes.origin.fetch()
+            #check latest commits from remote
+            for fi in remote:
+                branch = fi.ref.remote_head
+                #if fi.flags & fi.NEW_TAG:
+                #    continue                
+                try:
+                    remote_commit = fi.commit
+                except Exception:
+                    continue
+                if local_commits.has_key(branch):
+                    local_commit = local_commits[fi.ref.remote_head]
+                    up = self.compare_commits(local_commit, remote_commit)
                     if up:
-                        up.branch = head.name
+                        up.branch = branch
                         updates.append(up)
-                
-        return updates
-        # except Exception as e:
-        #             print "Failed checking for updates: %s" % e
-        #             raise e
+                else:
+                    if notify_new_branch:
+                        updates.append(
+                            UpdateStatus(remote_commit.message, 
+                                'NEW %s' % branch))
+            return updates
+        except AssertionError as e:
+            print 'Failed checking for updates: %s' % self.path
 
     def compare_commits(self, local, remote):
         if local.hexsha == remote.hexsha:
@@ -44,8 +59,9 @@ class Repository:
             return UpdateStatus(remote.message)
 
 class UpdateStatus:
-    def __init__(self, message):
+    def __init__(self, message, branch=None):
         self.message = message
+        self.branch = branch
 
 class Gitmon:
     
@@ -58,7 +74,8 @@ class Gitmon:
             config.write('test')
             config.close()
         else:
-            print 'Loading configuration from %s' % self.conf_file
+            if verbose:
+                print 'Loading configuration from %s' % self.conf_file
             with open(self.conf_file) as conf:
                 for line in conf:
                     if not line.strip().startswith('#') and line.strip() != '':
@@ -67,13 +84,17 @@ class Gitmon:
                         else:
                             pair = line.strip().split('=', 1)
                             self.config[pair[0].strip()] = pair[1].strip()
+            if self.config.has_key('notify.new.branch'):
+                global notify_new_branch
+                notify_new_branch = self.config['notify.new.branch']
                         
     def load_repos(self):
         for r in self.config['monitor'].split(','):
             r = r.strip()
             name = self.config[r + '.name']
             path = self.config[r + '.path']
-            print 'Tracking repo: "%s" at %s' % (name, path)
+            if verbose: 
+                print 'Tracking repo: "%s" at %s' % (name, path)
             self.repos.append(Repository(name, path))    
     
     def __init__(self):
@@ -83,7 +104,7 @@ class Gitmon:
         self.conf_file = os.path.expanduser(self.conf_file)
         self.load_config()
         self.load_repos()
-        if verbose:
+        if debug:
             print 'Loaded config: %s' % self.config     
             
     def check(self):
@@ -106,12 +127,19 @@ class Gitmon:
               print 'Error while notifying: %s, %s' % (retcode, args)
           print output
         
-verbose = False        
+verbose = False 
+notify_new_branch = False   
+debug = False    
         
 def main():
     global verbose
+    global debug
     program_name, args = sys.argv[0], sys.argv[1:]
     verbose = '-v' in args
+    debug = '--debug' in args
+    if '-h' in args or '--help' in args:
+        print 'Please read README file for help'
+        sys.exit(0)
     app = Gitmon()
     app.check()
 
