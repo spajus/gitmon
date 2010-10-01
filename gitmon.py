@@ -125,7 +125,6 @@ class Gitmon:
           retcode = proc.wait()        
           if retcode != 0:
               print 'Error while notifying: %s, %s' % (retcode, args)
-          print output
         
 verbose = False 
 notify_new_branch = False   
