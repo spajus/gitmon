@@ -130,6 +130,7 @@ class Gitmon:
 verbose = False 
 notify_new_branch = False   
 debug = False    
+version = 0.1
         
 def main():
     global verbose
@@ -137,6 +138,8 @@ def main():
     program_name, args = sys.argv[0], sys.argv[1:]
     verbose = '-v' in args
     debug = '--debug' in args
+    if '--version' in args:
+        print 'GitMon v%s' % version
     if '-h' in args or '--help' in args:
         print 'Please read README file for help'
         sys.exit(0)
