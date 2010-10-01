@@ -1,8 +1,6 @@
-#List of monitored repository definitions
-monitor = gitmon,repo-x
-
 #How to notify about changes. Growl notification is currently configured.
 notification.command = growlnotify -name ${name} -m ${status}
+auto.pull = 0
 
 #Notify when new branch appears?
 notify.new.branch = 0
