@@ -47,7 +47,7 @@ class Repository:
                     if notify_new_branch:
                         updates.append(
                             UpdateStatus(remote_commit.message, 
-                                'NEW %s' % branch))
+                                'NEW %s' % branch, remote_commit.author))
             return updates
         except AssertionError as e:
             print 'Failed checking for updates: %s' % self.path
@@ -56,10 +56,11 @@ class Repository:
         if local.hexsha == remote.hexsha:
             return None
         if local.committed_date < remote.committed_date:
-            return UpdateStatus(remote.message)
+            return UpdateStatus(remote.message, author=remote.author)
 
 class UpdateStatus:
-    def __init__(self, message, branch=None):
+    def __init__(self, message, branch=None, author=None):
+        self.author = author
         self.message = message
         self.branch = branch
 
@@ -113,7 +114,7 @@ class Gitmon:
             if st:
                 mess = []
                 for up in st:
-                    mess.append('In %s: %s' % (up.branch, up.message))
+                    mess.append('In %s: %s (%s)' % (up.branch, up.message, up.author))
                 self.notify(repo, '\n'.join(mess))
             
     def notify(self, repo, message):
