@@ -9,9 +9,6 @@ GitPython (easy_install gitpython)
 growlnotify (optional)
 crontab or other scheduling tool (optional)
 
-
-Note: 'git' and 'python' commands should be in crontab's PATH
-
 == Usage ==
 
 gitmon [-v] [--debug]
@@ -26,6 +23,8 @@ You can set up a crontab with your prefered timing to execute gitmon
 automatically, i.e: 
 
 * */5 * * /path/to/gitmon > /tmp/gitmon.log
+
+Note: 'git' and 'python' commands should be in crontab's PATH
 
 If you've done everything right, you should get some notifications.
 
