@@ -135,6 +135,7 @@ class Gitmon:
 
             
     def check(self):
+        """Checks the repositories and displays notifications"""
         for repo in self.repos:
             st = repo.check_status() 
             if st:
