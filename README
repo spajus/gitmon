@@ -22,7 +22,7 @@ Refer to provided gitmon.conf.example when creating your configuration.
 You can set up a crontab with your prefered timing to execute gitmon 
 automatically, i.e: 
 
-* */5 * * /path/to/gitmon > /tmp/gitmon.log
+*/5 * * * * /path/to/gitmon > /tmp/gitmon.log
 
 Note: 'git' and 'python' commands should be in crontab's PATH
 
