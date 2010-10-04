@@ -10,6 +10,7 @@ Copyright (c) 2010 Tomas Varaneckas. All rights reserved.
 import os
 import sys
 import subprocess
+import re    
 from git import *
 
 class Repository:
@@ -118,6 +119,12 @@ class Gitmon:
                 notify_new_branch = self.config['notify.new.branch']
             if self.config.has_key('auto.pull'):
                 auto_pull = self.config['auto.pull']
+        for key, val in self.config.items():
+            params = re.search("\$\{(.+)\}", val)
+            if params:
+                for par in params.groups():
+                    if self.config.has_key(par):
+                        self.config[key] = re.sub("\$\{(.+)\}", self.config[par], val)
                         
     def load_repos(self):
         """Loads repository definitions which are found in self.config"""
@@ -185,5 +192,5 @@ def main():
     app.check()
 
 if __name__ == '__main__':
-	main()
-	
+    main()
+    

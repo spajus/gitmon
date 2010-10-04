@@ -1,19 +1,24 @@
 #How to notify about changes. Growl notification is currently configured.
 notification.command = growlnotify -name ${name} -m ${status}
+
+#Pull when checking for updates?
 auto.pull = 0
 
 #Notify when new branch appears?
 notify.new.branch = 0
 
+#A variable which will be substituted below
+repos.root = ~/Dvelopment/repos
+
 #Repository definitions
 
-#repo-name.name = Repo Name
+#repo-name.name = Repo Name (optional)
 #repo-name.path = /path/to/repo
-
-#Don't forget to update 'monitor' when adding new definitions below
 
 gitmon.name = GitMon Repo
 gitmon.path = ~/Development/python/gitmon
 
 repo-x.name = Repo X
-repo-x.path = /path/to/repo-x
+repo-x.path = ${repos.root}/repo-x
+
+repo-y.path = ${repos.root}/repo-y
