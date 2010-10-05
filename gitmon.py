@@ -43,13 +43,17 @@ class Repository:
                 remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
-                branch = fi.ref.remote_head         
+                if hasattr(fi.ref, 'remote_head'):
+                    branch = fi.ref.remote_head       
+                else:
+                    #this is probably a tag, let's skip it
+                    continue
                 try: #sometimes retrieval of remote commit fails
                     remote_commit = fi.commit
                 except Exception:
                     continue
                 if local_commits.has_key(branch):
-                    local_commit = local_commits[fi.ref.remote_head]
+                    local_commit = local_commits[branch]
                     up = self.compare_commits(local_commit, remote_commit)
                     if up:
                         up.branch = branch
