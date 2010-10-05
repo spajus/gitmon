@@ -37,10 +37,7 @@ class Repository:
         
         try:
             #fetch new data
-            if auto_pull:
-                remote = self.repo.remotes.origin.pull()
-            else:
-                remote = self.repo.remotes.origin.fetch()
+            remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
                 if hasattr(fi.ref, 'remote_head'):
@@ -63,6 +60,12 @@ class Repository:
                         updates.append(
                             UpdateStatus(remote_commit.message, 
                                 'NEW %s' % branch, remote_commit.author))
+            if auto_pull:
+                try:
+                    self.repo.remotes.origin.pull()
+                except Exception:
+                    if verbose:
+                        print 'Failed pulling repo: %s' % repo.name
             return updates
         except AssertionError as e:
             if verbose:
