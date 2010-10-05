@@ -1,3 +1,6 @@
 #!/bin/bash
-GITMON_DIR=`dirname $0`
+GITMON_DIR=$(dirname $(readlink -n $0))
+if [ $GITMON_DIR=="" ]; then
+  GITMON_DIR="."
+fi
 exec python $GITMON_DIR/gitmon.py "$@"
