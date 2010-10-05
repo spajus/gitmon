@@ -1,8 +1,10 @@
 #!/bin/bash
-GITMON_DIR=$(readlink -n $0)
-if [ !$GITMON_DIR ]; then
-  GITMON_DIR="."
+_LINK=$(readlink -n $0)
+if [ ! $_LINK ]; then
+    _LINK=$0
 fi
-GITMON_DIR=`dirname $GITMON_DIR`
-GITMON_DIR=`cd $GITMON_DIR; pwd`
+GITMON_DIR=$(dirname $_LINK) 
+if [ ! $GITMON_DIR ]; then
+    GITMON_DIR=$(dirname $0)
+fi
 exec python $GITMON_DIR/gitmon.py "$@"
