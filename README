@@ -13,9 +13,10 @@ crontab or other scheduling tool (optional)
 
 gitmon [-v] [--debug]
 
-You have two options for placing your configuration file:
+You have three  options for placing your configuration file:
   1. Create ~/.gitmon.conf 
   2. Put gitmon.conf anywhere you want and define GITMON_CONF env variable
+  3. Run gitmon with -c /path/to/config.file
 
 Refer to provided gitmon.conf.example when creating your configuration.
 
@@ -29,9 +30,7 @@ Note: 'git' and 'python' commands should be in crontab's PATH
 If you've done everything right, you should get some notifications.
 
 == Known Issues ==
-* Only last new commit is displayed
-* When notify.new.branch is enabled, new branch notifications will repeat 
-untill you pull them.  
+So far, none
 
 == Contact ==
 Suggestions, improvements?
