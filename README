@@ -13,9 +13,10 @@ crontab or other scheduling tool (optional)
 
 gitmon [-v] [--debug]
 
-You have two options for placing your configuration file:
+You have three  options for placing your configuration file:
   1. Create ~/.gitmon.conf 
   2. Put gitmon.conf anywhere you want and define GITMON_CONF env variable
+  3. Run gitmon with -c /path/to/config.file
 
 Refer to provided gitmon.conf.example when creating your configuration.
 
