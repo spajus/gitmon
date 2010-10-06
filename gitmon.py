@@ -120,7 +120,7 @@ class UpdateStatus:
         mess = []
         for up in self.updates:
             mess.append('%s' % up)
-        print 'In %s:\n%s' % (self.branch, '\n'.join(mess))
+        return 'In %s:\n%s' % (self.branch, '\n'.join(mess))
 
 class Update:
     
@@ -130,7 +130,7 @@ class Update:
         self.stats = commit.stats.total
 
     def __str__(self):
-       print '%s: %s (%s)' % (self.author, self.message, self.stats) 
+       return '%s: %s (%s)' % (self.author, self.message, self.stats) 
 
 class Gitmon:
     """Handles the big picture - config loading, checking for updates"""
