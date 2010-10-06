@@ -1,5 +1,5 @@
 #How to notify about changes. Growl notification is currently configured.
-notification.command = growlnotify -name ${name} -m ${status}
+notification.command = growlnotify -name ${name} -m ${status} -s -i log
 
 #Pull when checking for updates?
 auto.pull = 0
