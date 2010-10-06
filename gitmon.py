@@ -70,19 +70,16 @@ class Repository:
                 except Exception as e:
                     print 'Could not fetch %s (%s): %s' % (self.name, branch, e)
                     continue
-                if local_commits.has_key(branch):
-                    local_commit = local_commits[branch]
+                if local_commits.has_key(branch) or notify_new_branch:
+                    if local_commits.has_key(branch):
+                        local_commit = local_commits[branch]
+                    else:
+                        local_commit = None
                     ups = self.compare_commits(local_commit, remote_commit)
                     if ups:
                         up = UpdateStatus(branch)
                         up.add(ups)
                         updates.append(up)
-                else:
-                    if notify_new_branch:
-                    #FIXME update it
-                        updates.append(
-                            UpdateStatus(remote_commit.message, 
-                                'NEW %s' % branch, remote_commit.author))
             if auto_pull:
                 try:
                     self.repo.remotes.origin.pull()
@@ -98,16 +95,15 @@ class Repository:
     def compare_commits(self, local, remote, depth=1, updates=None):
         """Compares local and remote commits to produce list of Update
         if remote commit is newer"""
-        if local.hexsha == remote.hexsha:
+        if local == None or local.hexsha == remote.hexsha:
             return updates
-        if local.committed_date < remote.committed_date:
+        if local == None or local.committed_date < remote.committed_date:
             if not updates:
                 updates = []
             updates.append(Update(remote))
             if remote.parents and depth < max_last_commits:
                 self.compare_commits(local, remote.parents[0], depth + 1, updates)
             return updates
-            
 
 class UpdateStatus:
     """Contains status update information which is displayed in user 
