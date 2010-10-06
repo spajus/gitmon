@@ -37,7 +37,10 @@ class Repository:
         self.name = name
         self.path = path
         self.path_full = os.path.expanduser(path)
-        self.repo = Repo(self.path_full)
+        try:
+            self.repo = Repo(self.path_full)
+        except Exception as e:
+            print 'Could not load repository at path: %s: %s' % (self.path_full, e)
     
     def check_status(self):
         """Fetches remote heads and compares the received data to remote refs
@@ -145,6 +148,8 @@ class Gitmon:
     
     def load_config(self):
         """Loads configuration into self.config dictionary"""
+        if '-c' in sys.argv:
+            self.conf_file = sys.argv[sys.argv.index('-c') + 1]
         config_found = os.path.isfile(self.conf_file)
         if not config_found:
             print 'creating initial configuration in %s' % self.conf_file 
@@ -193,9 +198,13 @@ class Gitmon:
     def check(self):
         """Checks the repositories and displays notifications"""
         for repo in self.repos:
-            st = repo.check_status() 
-            if st:
-                self.notify(repo, '\n'.join(st))
+            if hasattr(repo, 'repo'):
+                st = repo.check_status() 
+                if st:
+                    mess = []
+                    for status in st:
+                        mess.append('%s' % status)
+                    self.notify(repo, '\n'.join(mess))
             
     def notify(self, repo, message):        
         """Notifies user about status updates with notification.command 
