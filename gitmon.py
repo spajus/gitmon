@@ -14,7 +14,7 @@ import re
 from git import *
 
 #Current version. Print with --version when running
-version = 0.1.1
+version = "0.1.1"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
