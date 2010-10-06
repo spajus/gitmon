@@ -130,7 +130,7 @@ class Update:
         self.stats = commit.stats.total
 
     def __str__(self):
-       return '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats.deletions, self.stats.insertions, self.stats.files)
+       return '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats['deletions'], self.stats['insertions'], self.stats['files'])
 
 class Gitmon:
     """Handles the big picture - config loading, checking for updates"""
