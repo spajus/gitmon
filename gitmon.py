@@ -14,7 +14,7 @@ import re
 from git import *
 
 #Current version. Print with --version when running
-version = 0.1
+version = 0.1.1
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
@@ -226,7 +226,7 @@ def main():
     program_name, args = sys.argv[0], sys.argv[1:]
     verbose = '-v' in args
     debug = '--debug' in args
-    if '--version' in args:
+    if '--version' in args or '-v' in args:
         print 'GitMon v%s' % version
     if '-h' in args or '--help' in args:
         print 'Please read README file for help'
