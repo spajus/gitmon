@@ -102,7 +102,7 @@ class Repository:
                 updates = []
             updates.append(Update(remote))
             if remote.parents and depth <= max_last_commits:
-                self.compare_commits(local, remote.parents[0], depth + 1, updates)
+                self.compare_commits(branch, local, remote.parents[0], depth + 1, updates)
             return updates
 
 class UpdateStatus:
