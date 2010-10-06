@@ -117,7 +117,10 @@ class UpdateStatus:
         self.updates.extend(update)
 
     def __str__(self):
-        print 'In %s:\n%s' % (self.branch, '\n'.join(self.updates))
+        mess = []
+        for up in self.updates:
+            mess.append('%s' % up)
+        print 'In %s:\n%s' % (self.branch, '\n'.join(mess))
 
 class Update:
     
