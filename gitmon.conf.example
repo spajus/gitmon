@@ -5,7 +5,7 @@ notification.command = growlnotify -name ${name} -m ${status} -s -i log
 auto.pull = 0
 
 #Notify when new branch appears?
-notify.new.branch = 0
+notify.new.branch = 1
 
 #A variable which will be substituted below
 repos.root = ~/Dvelopment/repos
