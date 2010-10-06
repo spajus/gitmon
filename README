@@ -30,9 +30,7 @@ Note: 'git' and 'python' commands should be in crontab's PATH
 If you've done everything right, you should get some notifications.
 
 == Known Issues ==
-* Only last new commit is displayed
-* When notify.new.branch is enabled, new branch notifications will repeat 
-untill you pull them.  
+So far, none
 
 == Contact ==
 Suggestions, improvements?
