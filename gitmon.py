@@ -75,7 +75,7 @@ class Repository:
                         local_commit = local_commits[branch]
                     else:
                         local_commit = None
-                    ups = self.compare_commits(local_commit, remote_commit)
+                    ups = self.compare_commits(branch, local_commit, remote_commit)
                     if ups:
                         up = UpdateStatus(branch)
                         up.add(ups)
@@ -92,7 +92,7 @@ class Repository:
                 print 'Failed checking for updates: %s' % self.path
                 dump(e)
 
-    def compare_commits(self, local, remote, depth=1, updates=None):
+    def compare_commits(self, branch, local, remote, depth=1, updates=None):
         """Compares local and remote commits to produce list of Update
         if remote commit is newer"""
         if local and local.hexsha == remote.hexsha:
@@ -101,7 +101,7 @@ class Repository:
             if not updates:
                 updates = []
             updates.append(Update(remote))
-            if remote.parents and depth < max_last_commits:
+            if remote.parents and depth <= max_last_commits:
                 self.compare_commits(local, remote.parents[0], depth + 1, updates)
             return updates
 
@@ -130,7 +130,7 @@ class Update:
         self.stats = commit.stats.total
 
     def __str__(self):
-       return '%s: %s (%s)' % (self.author, self.message, self.stats) 
+       return '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats.deletions, self.stats.insertions, self.stats.files)
 
 class Gitmon:
     """Handles the big picture - config loading, checking for updates"""
