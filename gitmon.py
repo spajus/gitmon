@@ -95,9 +95,9 @@ class Repository:
     def compare_commits(self, local, remote, depth=1, updates=None):
         """Compares local and remote commits to produce list of Update
         if remote commit is newer"""
-        if local == None or local.hexsha == remote.hexsha:
+        if local and local.hexsha == remote.hexsha:
             return updates
-        if local == None or local.committed_date < remote.committed_date:
+        if not local or local.committed_date < remote.committed_date:
             if not updates:
                 updates = []
             updates.append(Update(remote))
