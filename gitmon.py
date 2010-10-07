@@ -27,9 +27,6 @@ auto_pull = False
 #How many latest commits to display?
 max_last_commits = 5
 
-def dump(obj):
-    for attr in dir(obj):
-        print "obj.%s = %s" % (attr, getattr(obj, attr))
 
 class Repository:
     """Works with GitPython's to produce nice status update information"""
@@ -69,8 +66,7 @@ class Repository:
                 try: #http://byronimo.lighthouseapp.com/projects/51787-gitpython/tickets/44-remoteref-fails-when-there-is-character-in-the-name
                     remote_commit = fi.commit
                 except Exception as e:
-                    if debug:
-                        dump(e)
+                    dump(e)
                     continue
                 if local_commits.has_key(branch) or notify_new_branch:
                     if local_commits.has_key(branch):
@@ -92,8 +88,7 @@ class Repository:
         except AssertionError as e:
             if verbose:
                 print 'Failed checking for updates: %s' % self.path
-                if debug:
-                    dump(e)
+                dump(e)
 
     def compare_commits(self, branch, local, remote, depth=1, updates=None):
         """Compares local and remote commits to produce list of Update
@@ -104,15 +99,12 @@ class Repository:
             if not updates:
                 updates = []
             updates.append(Update(remote))
-            if remote.parents and depth <= max_last_commits:
-                if remote.parents[0].name_rev.endswith(branch):
-                    self.compare_commits(branch, local, remote.parents[0], depth + 1, updates)
+            if remote.parents and depth <= max_last_commits and remote.parents[0].name_rev.endswith(branch):
+                self.compare_commits(branch, local, remote.parents[0], depth + 1, updates)
             return updates
 
 class UpdateStatus:
-    """Contains status update information which is displayed in user 
-    notification"""
-    
+    """A set of commits that happened in a branch"""
     def __init__(self, branch=None):
         self.branch = branch
         self.updates = []
@@ -124,11 +116,13 @@ class UpdateStatus:
         return 'In %s:\n%s\n' % (self.branch, '\n'.join([sta.__str__() for sta in self.updates]))
 
 class Update:
-    
+    """Contains information about single commit""" 
     def __init__(self, commit):
         self.message = commit.message.strip()
         self.author = commit.committer.name.strip()
-        self.files = ['[%s+ %s-] %s' % (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) for file in commit.stats.files.keys()]
+        self.files = ['[%s+ %s-] %s' % \
+            (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) \
+            for file in commit.stats.files.keys()]
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
 
     def __str__(self):
@@ -215,14 +209,20 @@ class Gitmon:
         notif_cmd[notif_cmd.index('${status}')] = message.strip()
         notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
                                                     (repo.name, repo.path)
-        proc = subprocess.Popen(notif_cmd, cwd=repo.path_full,
-                                                stdout=subprocess.PIPE)
+        self.exec_notification(notif_cmd, repo.path_full, stdout=subprocess.PIPE)
+       
+    def exec_notification(self, notif_cmd, path):
+        proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
         output, _ = proc.communicate()
         retcode = proc.wait()        
         if retcode != 0:
             print 'Error while notifying: %s, %s' % (retcode, args)
-       
+    
         
+def dump(obj):
+    if debug:
+        for attr in dir(obj):
+            print "obj.%s = %s" % (attr, getattr(obj, attr))
 def main():
     global verbose, debug
     program_name, args = sys.argv[0], sys.argv[1:]
