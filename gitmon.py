@@ -74,6 +74,7 @@ class Repository:
                 if local_commits.has_key(branch) or notify_new_branch:
                     if local_commits.has_key(branch):
                         local_commit = local_commits[branch]
+                        new_branch = False
                     else:
                         local_commit = None
                         new_branch = True
