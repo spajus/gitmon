@@ -13,6 +13,7 @@ import subprocess
 import re    
 import time
 from git import *
+import pdb
 
 #Current version. Print with --version when running
 version = "0.1.2"
@@ -56,6 +57,7 @@ class Repository:
         try:
             #fetch new data
             remote = self.repo.remotes.origin.fetch()
+            pdb.set_trace()
             #check latest commits from remote
             for fi in remote:
                 if hasattr(fi.ref, 'remote_head'):
@@ -209,7 +211,7 @@ class Gitmon:
         notif_cmd[notif_cmd.index('${status}')] = message.strip()
         notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
                                                     (repo.name, repo.path)
-        self.exec_notification(notif_cmd, repo.path_full, stdout=subprocess.PIPE)
+        self.exec_notification(notif_cmd, repo.path_full)
        
     def exec_notification(self, notif_cmd, path):
         proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
