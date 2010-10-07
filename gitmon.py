@@ -14,7 +14,7 @@ import re
 from git import *
 
 #Current version. Print with --version when running
-version = "0.1.1"
+version = "0.1.2"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
@@ -69,7 +69,7 @@ class Repository:
                     remote_commit = fi.commit
                 except Exception as e:
                     if debug:
-                        print e
+                        dump(e)
                     continue
                 if local_commits.has_key(branch) or notify_new_branch:
                     if local_commits.has_key(branch):
@@ -120,20 +120,21 @@ class UpdateStatus:
         self.updates.extend(update)
 
     def __str__(self):
-        mess = []
-        for up in self.updates:
-            mess.append('%s' % up)
-        return 'In %s:\n%s' % (self.branch, '\n'.join(mess))
+        return 'In %s:\n%s\n' % (self.branch, '\n'.join([sta.__str__() for sta in self.updates]))
 
 class Update:
     
     def __init__(self, commit):
-        self.message = commit.message
-        self.author = commit.committer.name
+        self.message = commit.message.strip()
+        self.author = commit.committer.name.strip()
         self.stats = commit.stats.total
+        self.files = [blob.name for blob in commit.tree.blobs]
 
     def __str__(self):
-       return '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats['deletions'], self.stats['insertions'], self.stats['files'])
+        mess = '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats['deletions'], self.stats['insertions'], self.stats['files'])
+        if self.files:
+            mess += ':\n----------\n%s' % '\n'.join(self.files)
+        return mess
 
 class Gitmon:
     """Handles the big picture - config loading, checking for updates"""
@@ -203,17 +204,14 @@ class Gitmon:
             if hasattr(repo, 'repo'):
                 st = repo.check_status() 
                 if st:
-                    mess = []
-                    for status in st:
-                        mess.append('%s' % status)
-                    self.notify(repo, '\n'.join(mess))
+                    self.notify(repo, '\n'.join([sta.__str__() for sta in st]))
             
     def notify(self, repo, message):        
         """Notifies user about status updates with notification.command 
         from config. Replaces ${status} with update status message, 
         ${name} with repo name."""
         notif_cmd = self.config['notification.command'].split(' ')
-        notif_cmd[notif_cmd.index('${status}')] = message
+        notif_cmd[notif_cmd.index('${status}')] = message.strip()
         notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
                                                     (repo.name, repo.path)
         proc = subprocess.Popen(notif_cmd, cwd=repo.path_full,
