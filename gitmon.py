@@ -91,7 +91,8 @@ class Repository:
         except AssertionError as e:
             if verbose:
                 print 'Failed checking for updates: %s' % self.path
-                dump(e)
+                if debug:
+                    dump(e)
 
     def compare_commits(self, branch, local, remote, depth=1, updates=None):
         """Compares local and remote commits to produce list of Update
@@ -103,7 +104,8 @@ class Repository:
                 updates = []
             updates.append(Update(remote))
             if remote.parents and depth <= max_last_commits:
-                self.compare_commits(branch, local, remote.parents[0], depth + 1, updates)
+                if remote.parents[0].name_rev.endswith(branch):
+                    self.compare_commits(branch, local, remote.parents[0], depth + 1, updates)
             return updates
 
 class UpdateStatus:
