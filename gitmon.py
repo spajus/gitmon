@@ -16,7 +16,7 @@ from git import *
 import pdb
 
 #Current version. Print with --version when running
-version = "0.1.2"
+version = "0.1.3"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
