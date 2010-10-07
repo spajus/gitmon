@@ -57,7 +57,8 @@ class Repository:
         try:
             #fetch new data
             remote = self.repo.remotes.origin.fetch()
-            pdb.set_trace()
+            if debug:
+                pdb.set_trace()
             #check latest commits from remote
             for fi in remote:
                 if hasattr(fi.ref, 'remote_head'):
@@ -130,7 +131,7 @@ class Update:
     def __str__(self):
         mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
         if self.files:
-            mess += '\n----------\n%s' % '\n'.join(self.files)
+            mess += '\nFiles:\n%s' % '\n'.join(self.files)
         return mess
 
 class Gitmon:
