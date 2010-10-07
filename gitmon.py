@@ -11,6 +11,7 @@ import os
 import sys
 import subprocess
 import re    
+import time
 from git import *
 
 #Current version. Print with --version when running
@@ -128,9 +129,10 @@ class Update:
         self.message = commit.message.strip()
         self.author = commit.committer.name.strip()
         self.files = ['[%s+ %s-] %s' % (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) for file in commit.stats.files.keys()]
+        self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
 
     def __str__(self):
-        mess = '%s: %s' % (self.author, self.message)
+        mess = '[%s]\n%s: %s' % (self.date, self.author, self.message)
         if self.files:
             mess += '\n----------\n%s' % '\n'.join(self.files)
         return mess
