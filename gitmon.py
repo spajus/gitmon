@@ -82,8 +82,8 @@ class Repository:
                     if ups or new_branch:
                         up = UpdateStatus(branch)
                         if new_branch:
-                            up.set_new()
-                        if not remote_commit in remote_commits.extend(local_commits):
+                            up.set_new(remote_commit)
+                        if not remote_commit in remote_commits and not remote_commit in local_commits.values():
                             up.add(ups)
                             remote_commits.append(remote_commit)
                         updates.append(up)
@@ -119,8 +119,9 @@ class UpdateStatus:
         self.branch = branch
         self.updates = []
 
-    def set_new(self):
+    def set_new(self, commit):
         self.branch = 'NEW %s' % self.branch
+        self.updates.append(Update(commit, True))
 
     def add(self, update):
         self.updates.extend(update)
@@ -130,13 +131,17 @@ class UpdateStatus:
 
 class Update:
     """Contains information about single commit""" 
-    def __init__(self, commit):
-        self.message = commit.message.strip()
+    def __init__(self, commit, new_branch=None):
         self.author = commit.committer.name.strip()
-        self.files = ['[%s+ %s-] %s' % \
-            (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) \
-            for file in commit.stats.files.keys()]
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
+        if new_branch:
+            self.message = 'New branch created'
+            self.files = []
+        else:
+            self.message = commit.message.strip()
+            self.files = ['[%s+ %s-] %s' % \
+                (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) \
+                for file in commit.stats.files.keys()]
 
     def __str__(self):
         mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
