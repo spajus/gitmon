@@ -133,7 +133,7 @@ class Update:
     def __str__(self):
         mess = '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats['deletions'], self.stats['insertions'], self.stats['files'])
         if self.files:
-            mess += ':\n----------\n%s' % '\n'.join(self.files)
+            mess += '\n----------\n%s' % '\n'.join(self.files)
         return mess
 
 class Gitmon:
