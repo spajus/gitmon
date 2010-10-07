@@ -65,10 +65,11 @@ class Repository:
                 else:
                     #this is probably a tag, let's skip it for now
                     continue
-                try: #sometimes reference may not exist
+                try: #http://byronimo.lighthouseapp.com/projects/51787-gitpython/tickets/44-remoteref-fails-when-there-is-character-in-the-name
                     remote_commit = fi.commit
                 except Exception as e:
-                    print 'Could not fetch %s (%s): %s' % (self.name, branch, e)
+                    if debug:
+                        print e
                     continue
                 if local_commits.has_key(branch) or notify_new_branch:
                     if local_commits.has_key(branch):
