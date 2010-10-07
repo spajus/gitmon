@@ -50,7 +50,7 @@ class Repository:
             print 'Checking repo: %s' % self.name
         
         #get last commits in current remote ref
-        local_commits = {}
+        local_commits, remote_commits = {}, []
         for rem in self.repo.remotes.origin.refs:
             local_commits[rem.remote_head] = rem.commit
         
@@ -79,11 +79,13 @@ class Repository:
                         local_commit = None
                         new_branch = True
                     ups = self.compare_commits(branch, local_commit, remote_commit)
-                    if ups:
+                    if ups or new_branch:
                         up = UpdateStatus(branch)
                         if new_branch:
                             up.set_new()
-                        up.add(ups)
+                        if not remote_commit in remote_commits.extend(local_commits):
+                            up.add(ups)
+                            remote_commits.append(remote_commit)
                         updates.append(up)
                 
             if auto_pull:
