@@ -127,11 +127,10 @@ class Update:
     def __init__(self, commit):
         self.message = commit.message.strip()
         self.author = commit.committer.name.strip()
-        self.stats = commit.stats.total
-        self.files = [blob.name for blob in commit.tree.blobs]
+        self.files = ['[%s+ %s-] %s' % (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) for file in commit.stats.files.keys()]
 
     def __str__(self):
-        mess = '%s: %s (-:%s +:%s f:%s)' % (self.author, self.message, self.stats['deletions'], self.stats['insertions'], self.stats['files'])
+        mess = '%s: %s' % (self.author, self.message)
         if self.files:
             mess += '\n----------\n%s' % '\n'.join(self.files)
         return mess
