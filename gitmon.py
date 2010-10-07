@@ -128,7 +128,7 @@ class Update:
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
 
     def __str__(self):
-        mess = '%s\n----------\n%s: %s' % (self.date, self.author, self.message)
+        mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
         if self.files:
             mess += '\n----------\n%s' % '\n'.join(self.files)
         return mess
