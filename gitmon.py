@@ -57,10 +57,10 @@ class Repository:
         try:
             #fetch new data
             remote = self.repo.remotes.origin.fetch()
-            if debug:
-                pdb.set_trace()
             #check latest commits from remote
             for fi in remote:
+                if debug:
+                    pdb.set_trace()
                 if hasattr(fi.ref, 'remote_head'):
                     branch = fi.ref.remote_head       
                 else:
@@ -76,11 +76,15 @@ class Repository:
                         local_commit = local_commits[branch]
                     else:
                         local_commit = None
+                        new_branch = True
                     ups = self.compare_commits(branch, local_commit, remote_commit)
                     if ups:
                         up = UpdateStatus(branch)
+                        if new_branch:
+                            up.set_new()
                         up.add(ups)
                         updates.append(up)
+                
             if auto_pull:
                 try:
                     self.repo.remotes.origin.pull()
@@ -111,6 +115,9 @@ class UpdateStatus:
     def __init__(self, branch=None):
         self.branch = branch
         self.updates = []
+
+    def set_new(self):
+        self.branch = 'NEW %s' % self.branch
 
     def add(self, update):
         self.updates.extend(update)
