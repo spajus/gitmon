@@ -13,7 +13,6 @@ import subprocess
 import re    
 import time
 from git import *
-import pdb
 
 #Current version. Print with --version when running
 version = "0.1.3"
@@ -53,22 +52,24 @@ class Repository:
         local_commits, remote_commits = {}, []
         for rem in self.repo.remotes.origin.refs:
             local_commits[rem.remote_head] = rem.commit
+        local_refs = [ref.name for ref in self.repo.remotes.origin.refs] 
         
         try:
             #fetch new data
             remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
-                if debug:
-                    pdb.set_trace()
                 if hasattr(fi.ref, 'remote_head'):
                     branch = fi.ref.remote_head       
                 else:
-                    if debug:
-                        print 'skipping fetch info: %s' % fi.ref
-                        dump(fi)
+                    if fi.ref.path.startswith('refs/tags/'):
+                        if not fi.ref.path in local_refs:
+                            up = UpdateStatus()
+                            up.set_new_tag(fi.ref.commit, fi.ref.name)
+                            updates.append(up)
+                    else: 
+                        print 'warning, unknown ref type: %s' % fi.ref
                         dump(fi.ref)
-                    #this is probably a tag, let's skip it for now
                     continue
                 try: #http://byronimo.lighthouseapp.com/projects/51787-gitpython/tickets/44-remoteref-fails-when-there-is-character-in-the-name
                     remote_commit = fi.commit
@@ -115,8 +116,12 @@ class Repository:
                 parent = remote.parents[0]
                 while depth <= max_last_commits:
                     depth += 1
-                    if parent.name_rev.endswith(branch) and self.is_remote_newer(local, parent):
+                    if re.search('%s(~.*)?' % re.escape(branch), parent.name_rev) and self.is_remote_newer(local, parent):
                         updates.append(Update(parent))
+                    if parent.parents:
+                        parent = parent.parents[0]
+                    else:
+                        break
             return updates
 
     def is_remote_newer(self, local, remote):
@@ -131,16 +136,23 @@ class UpdateStatus:
     def __init__(self, branch=None):
         self.branch = branch
         self.updates = []
+        self.type = ''
 
     def set_new(self, commit):
-        self.branch = 'NEW %s' % self.branch
+        self.branch = self.branch
+        self.type = ' (New branch)'
         self.updates.append(Update(commit, True))
+
+    def set_new_tag(self, commit, tag):
+        self.branch = tag
+        self.type = ' (New tag)'
+        self.updates.append(Update(commit))
 
     def add(self, update):
         self.updates.extend(update)
 
     def __str__(self):
-        return 'In %s:\n%s\n' % (self.branch, '\n'.join([sta.__str__() for sta in self.updates]))
+        return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([sta.__str__() for sta in self.updates]))
 
 class Update:
     """Contains information about single commit""" 
