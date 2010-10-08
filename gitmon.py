@@ -146,7 +146,7 @@ class UpdateStatus:
     def set_new_tag(self, commit, tag):
         self.branch = tag
         self.type = ' (New tag)'
-        self.updates.append(Update(commit))
+        self.updates.append(Update(commit, None, True))
 
     def add(self, update):
         self.updates.extend(update)
@@ -156,17 +156,18 @@ class UpdateStatus:
 
 class Update:
     """Contains information about single commit""" 
-    def __init__(self, commit, new_branch=None):
+    def __init__(self, commit, new_branch=None, new_tag=False):
+        self.files = []
         self.author = commit.committer.name.strip()
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
         if new_branch:
             self.message = 'New branch created'
-            self.files = []
         else:
             self.message = commit.message.strip()
-            self.files = ['[%s+ %s-] %s' % \
-                (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) \
-                for file in commit.stats.files.keys()]
+            if not new_tag:
+                self.files = ['[%s+ %s-] %s' % \
+                    (commit.stats.files[file]['insertions'], commit.stats.files[file]['deletions'], file) \
+                        for file in commit.stats.files.keys()]
 
     def __str__(self):
         mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
