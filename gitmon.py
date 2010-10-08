@@ -64,6 +64,10 @@ class Repository:
                 if hasattr(fi.ref, 'remote_head'):
                     branch = fi.ref.remote_head       
                 else:
+                    if debug:
+                        print 'skipping fetch info: %s' % fi.ref
+                        dump(fi)
+                        dump(fi.ref)
                     #this is probably a tag, let's skip it for now
                     continue
                 try: #http://byronimo.lighthouseapp.com/projects/51787-gitpython/tickets/44-remoteref-fails-when-there-is-character-in-the-name
@@ -103,15 +107,24 @@ class Repository:
     def compare_commits(self, branch, local, remote, depth=1, updates=None):
         """Compares local and remote commits to produce list of Update
         if remote commit is newer"""
-        if local and local.hexsha == remote.hexsha:
-            return updates
-        if not local or local.committed_date < remote.committed_date:
+        if self.is_remote_newer(local, remote):
             if not updates:
                 updates = []
             updates.append(Update(remote))
-            if remote.parents and depth <= max_last_commits and remote.parents[0].name_rev.endswith(branch):
-                self.compare_commits(branch, local, remote.parents[0], depth + 1, updates)
+            if remote.parents:
+                parent = remote.parents[0]
+                while depth <= max_last_commits:
+                    depth += 1
+                    if parent.name_rev.endswith(branch) and self.is_remote_newer(local, parent):
+                        updates.append(Update(parent))
             return updates
+
+    def is_remote_newer(self, local, remote):
+        if local and local.hexsha == remote.hexsha:
+            return False
+        if not local or local.committed_date < remote.committed_date:
+            return True
+
 
 class UpdateStatus:
     """A set of commits that happened in a branch"""
