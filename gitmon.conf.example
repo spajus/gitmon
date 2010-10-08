@@ -1,13 +1,16 @@
 #How to notify about changes. Growl notification is currently configured.
 notification.command = growlnotify -name ${name} -m ${status} -s -i log
 
+#In linux where libnotify-bin is available:
+#notification.command = notification-send "${name}" "${status}"
+
 #Pull when checking for updates?
-auto.pull = 0
+auto.pull = 1
 
 #Notify when new branch appears?
 notify.new.branch = 1
 
-#A variable which will be substituted below
+#A variable which will be substituted below. You can have many of these
 repos.root = ~/Dvelopment/repos
 
 #Repository definitions
