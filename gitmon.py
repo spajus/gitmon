@@ -28,7 +28,7 @@ auto_pull = False
 max_last_commits = 5
 
 
-class Repository:
+class Repository(object):
     """Works with GitPython's to produce nice status update information"""
     
     def __init__(self, name, path):
@@ -123,7 +123,7 @@ class Repository:
             return True
 
 
-class UpdateStatus:
+class UpdateStatus(object):
     """A set of commits that happened in a branch"""
     def __init__(self, branch=None):
         self.branch = branch
@@ -146,7 +146,7 @@ class UpdateStatus:
     def __str__(self):
         return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([sta.__str__() for sta in self.updates]))
 
-class Update:
+class Update(object):
     """Contains information about single commit""" 
     def __init__(self, commit, new_branch=None, new_tag=False):
         self.files = []
@@ -167,7 +167,7 @@ class Update:
             mess += '\nFiles:\n%s' % '\n'.join(self.files)
         return mess
 
-class Gitmon:
+class Gitmon(object):
     """Handles the big picture - config loading, checking for updates"""
     
     def __init__(self):
