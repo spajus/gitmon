@@ -49,10 +49,10 @@ class Repository:
             print 'Checking repo: %s' % self.name
         
         #get last commits in current remote ref
-        local_commits, remote_commits = {}, []
+        local_commits, remote_commits, local_refs = {}, [], []
         for rem in self.repo.remotes.origin.refs:
+            local_refs.append(rem.name)
             local_commits[rem.remote_head] = rem.commit
-        local_refs = [ref.name for ref in self.repo.remotes.origin.refs] 
         
         try:
             #fetch new data
@@ -83,7 +83,7 @@ class Repository:
                     else:
                         local_commit = None
                         new_branch = True
-                    ups = self.compare_commits(branch, local_commit, remote_commit)
+                    ups = [update for update in self.get_updates(branch, local_commit, remote_commit)]
                     if ups or new_branch:
                         up = UpdateStatus(branch)
                         if new_branch:
@@ -105,24 +105,16 @@ class Repository:
                 print 'Failed checking for updates: %s' % self.path
                 dump(e)
 
-    def compare_commits(self, branch, local, remote, depth=1, updates=None):
-        """Compares local and remote commits to produce list of Update
-        if remote commit is newer"""
-        if self.is_remote_newer(local, remote):
-            if not updates:
-                updates = []
-            updates.append(Update(remote))
+    def get_updates(self, branch, local, remote):
+        depth = 0
+        while depth < max_last_commits:
+            depth += 1 
+            if re.search('%s(~.*)?' % re.escape(branch), remote.name_rev) and self.is_remote_newer(local, remote):
+                yield Update(remote)
             if remote.parents:
-                parent = remote.parents[0]
-                while depth <= max_last_commits:
-                    depth += 1
-                    if re.search('%s(~.*)?' % re.escape(branch), parent.name_rev) and self.is_remote_newer(local, parent):
-                        updates.append(Update(parent))
-                    if parent.parents:
-                        parent = parent.parents[0]
-                    else:
-                        break
-            return updates
+                remote = remote.parents[0]
+            else:
+                break
 
     def is_remote_newer(self, local, remote):
         if local and local.hexsha == remote.hexsha:
