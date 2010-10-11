@@ -25,7 +25,7 @@ debug = False
 #Should updates be pulled automatically?
 auto_pull = False
 #How many latest commits to display?
-max_last_commits = 5
+max_new_commits = 5
 
 
 class Repository(object):
@@ -107,7 +107,7 @@ class Repository(object):
 
     def get_updates(self, branch, local, remote):
         depth = 0
-        while depth < max_last_commits:
+        while depth < max_new_commits:
             depth += 1 
             if re.search('%s(~.*)?' % re.escape(branch), remote.name_rev) and self.is_remote_newer(local, remote):
                 yield Update(remote)
@@ -207,6 +207,8 @@ class Gitmon(object):
                 notify_new_branch = self.config['notify.new.branch']
             if self.config.has_key('auto.pull'):
                 auto_pull = self.config['auto.pull']
+            if self.config.has_key('max.new.commits'):
+                max_new_commits = self.config['max.new.commits']
         for key, val in self.config.items():
             params = re.search("\$\{(.+)\}", val)
             if params:

@@ -10,6 +10,9 @@ auto.pull = 1
 #Notify when new branch appears?
 notify.new.branch = 1
 
+#Maximum number of new commits to show
+max.new.commits = 5
+
 #A variable which will be substituted below. You can have many of these
 repos.root = ~/Dvelopment/repos
 
