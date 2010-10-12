@@ -144,7 +144,7 @@ class UpdateStatus(object):
         self.updates.extend(update)
 
     def __str__(self):
-        return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([sta.__str__() for sta in self.updates]))
+        return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([str(sta) for sta in self.updates]))
 
 class Update(object):
     """Contains information about single commit""" 
@@ -237,7 +237,7 @@ class Gitmon(object):
             if hasattr(repo, 'repo'):
                 st = repo.check_status() 
                 if st:
-                    self.notify(repo, '\n'.join([sta.__str__() for sta in st]))
+                    self.notify(repo, '\n'.join([str(sta) for sta in st]))
             
     def notify(self, repo, message):        
         """Notifies user about status updates with notification.command 
@@ -260,7 +260,7 @@ class Gitmon(object):
 def dump(obj):
     if debug:
         for attr in dir(obj):
-            print "obj.%s = %s" % (attr, getattr(obj, attr))
+            print 'obj.%s = %s' % (attr, getattr(obj, attr))
 def main():
     global verbose, debug
     program_name, args = sys.argv[0], sys.argv[1:]
