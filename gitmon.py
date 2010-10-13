@@ -99,7 +99,7 @@ class Repository(object):
                 except Exception as e:
                     if verbose:
                         print 'Failed pulling repo: %s, %s' % (self.name, e)
-            return updates
+            return self.filter_updates(updates)
         except AssertionError as e:
             if verbose:
                 print 'Failed checking for updates: %s' % self.path
@@ -122,6 +122,23 @@ class Repository(object):
         if not local or local.committed_date < remote.committed_date:
             return True
 
+    def filter_updates(self, updates):
+        """Filters updates to show only max_new_commits"""
+        commits = {}
+        for update in updates:
+            for commit in update.updates:
+                commits[commit] = update
+        commits_by_date = sorted(commits.keys(), key=lambda commit: commit.date, reverse=True)[:max_new_commits]
+        filtered_updates = []
+        for commit in commits_by_date:
+            update = commits[commit]
+            if update in filtered_updates:
+                update.updates.append(commit)
+            else:
+                update.updates = [commit]
+                filtered_updates.append(update)
+        return filtered_updates
+            
 
 class UpdateStatus(object):
     """A set of commits that happened in a branch"""
