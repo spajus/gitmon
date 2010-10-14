@@ -26,6 +26,8 @@ debug = False
 auto_pull = False
 #How many latest commits to display?
 max_new_commits = 5
+#How many files to show in changeset. 0 means infinite.
+max_files_info = 3
 
 
 class Repository(object):
@@ -64,7 +66,7 @@ class Repository(object):
                 else:
                     if fi.ref.path.startswith('refs/tags/'):
                         if not fi.ref.path in local_refs:
-                            up = UpdateStatus()
+                            up = BranchUpdates()
                             up.set_new_tag(fi.ref.commit, fi.ref.name)
                             updates.append(up)
                     else: 
@@ -85,9 +87,9 @@ class Repository(object):
                         new_branch = True
                     ups = [update for update in self.get_updates(branch, local_commit, remote_commit)]
                     if ups or new_branch:
-                        up = UpdateStatus(branch)
+                        up = BranchUpdates(branch)
                         if new_branch:
-                            up.set_new(remote_commit)
+                            up.set_new_branch(remote_commit)
                         if not remote_commit in remote_commits and not remote_commit in local_commits.values():
                             up.add(ups)
                             remote_commits.append(remote_commit)
@@ -106,6 +108,7 @@ class Repository(object):
                 dump(e)
 
     def get_updates(self, branch, local, remote):
+        """Retrieves updates from remote branch if series of remote commits are newer than local. Limits to max_new_commits."""
         depth = 0
         while depth < max_new_commits:
             depth += 1 
@@ -117,6 +120,7 @@ class Repository(object):
                 break
 
     def is_remote_newer(self, local, remote):
+        """Compares local and remote updates and tells if remote is newer."""
         if local and local.hexsha == remote.hexsha:
             return False
         if not local or local.committed_date < remote.committed_date:
@@ -140,24 +144,27 @@ class Repository(object):
         return filtered_updates
             
 
-class UpdateStatus(object):
+class BranchUpdates(object):
     """A set of commits that happened in a branch"""
     def __init__(self, branch=None):
         self.branch = branch
         self.updates = []
         self.type = ''
 
-    def set_new(self, commit):
+    def set_new_branch(self, commit):
+        """Marks this update status as new branch"""
         self.branch = self.branch
         self.type = ' (New branch)'
         self.updates.append(Update(commit, True))
 
     def set_new_tag(self, commit, tag):
+        """Marks this update as new tag"""
         self.branch = tag
         self.type = ' (New tag)'
         self.updates.append(Update(commit, None, True))
 
     def add(self, update):
+        """Appends an update to this update status"""
         self.updates.extend(update)
 
     def __str__(self):
@@ -179,9 +186,12 @@ class Update(object):
                         for file in commit.stats.files.keys()]
 
     def __str__(self):
+        """Displays update representation. It's used in notification later."""
         mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
         if self.files:
-            mess += '\nFiles:\n%s' % '\n'.join(self.files)
+            mess += '\nFiles:\n%s' % (len(self.files), '\n'.join(self.files[:max_files_info]))
+            if len(self.files) > max_files_info:
+                mess += '\n(%s more files)' % len(self.files) - max_files_info 
         return mess
 
 class Gitmon(object):
@@ -226,6 +236,8 @@ class Gitmon(object):
                 auto_pull = self.config['auto.pull']
             if self.config.has_key('max.new.commits'):
                 max_new_commits = self.config['max.new.commits']
+            if self.config.has_key('max.files.info'):
+                max_files_info = self.config['max.files.info']
         for key, val in self.config.items():
             params = re.search("\$\{(.+)\}", val)
             if params:

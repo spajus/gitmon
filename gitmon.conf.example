@@ -13,6 +13,9 @@ notify.new.branch = 1
 #Maximum number of new commits to show
 max.new.commits = 5
 
+#Maximum number of files to show in commit info
+max.files.info = 3
+
 #A variable which will be substituted below. You can have many of these
 repos.root = ~/Dvelopment/repos
 
