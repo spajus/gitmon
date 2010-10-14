@@ -34,6 +34,7 @@ class Repository(object):
     """Works with GitPython's to produce nice status update information"""
     
     def __init__(self, name, path):
+        """Initializes repository object with given name and path"""
         self.name = name
         self.path = path
         self.path_full = os.path.expanduser(path)
@@ -147,6 +148,7 @@ class Repository(object):
 class BranchUpdates(object):
     """A set of commits that happened in a branch"""
     def __init__(self, branch=None):
+        """Initializes branch updates object"""
         self.branch = branch
         self.updates = []
         self.type = ''
@@ -168,6 +170,7 @@ class BranchUpdates(object):
         self.updates.extend(update)
 
     def __str__(self):
+        """Creates a string representation of all updates in the branch"""
         return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([str(sta) for sta in self.updates]))
 
 class Update(object):
@@ -279,6 +282,7 @@ class Gitmon(object):
         self.exec_notification(notif_cmd, repo.path_full)
        
     def exec_notification(self, notif_cmd, path):
+        """Does the actual execution of notification command"""
         proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
         output, _ = proc.communicate()
         retcode = proc.wait()        
