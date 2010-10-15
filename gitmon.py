@@ -195,7 +195,8 @@ class Update(object):
             if max_files_info > 0:
                 mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
                 if len(self.files) > max_files_info:
-                    mess += '\n(%s more files)' % (len(self.files) - max_files_info) 
+                    more_files = len(self.files) - max_files_info
+                    mess += '\n(%s more %s)' % (more_files, pluralize('file', more_files)) 
             else:
                 mess += '\nFiles:\n%s' % '\n'.join(self.files)
         return mess
@@ -298,6 +299,11 @@ def dump(obj):
     if debug:
         for attr in dir(obj):
             print 'obj.%s = %s' % (attr, getattr(obj, attr))
+def pluralize(word, count):
+    if count > 1:
+        return '%ss' % word
+    return word
+
 def main():
     global verbose, debug
     args = sys.argv[1:]
