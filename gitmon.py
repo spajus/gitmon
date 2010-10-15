@@ -192,7 +192,7 @@ class Update(object):
         """Displays update representation. It's used in notification later."""
         mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
         if self.files:
-            mess += '\nFiles:\n%s' % (len(self.files), '\n'.join(self.files[:max_files_info]))
+            mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
             if len(self.files) > max_files_info:
                 mess += '\n(%s more files)' % len(self.files) - max_files_info 
         return mess
