@@ -1,5 +1,5 @@
 #How to notify about changes. Growl notification is currently configured.
-notification.command = growlnotify -name ${name} -m ${status} -s -i log
+notification.command = growlnotify -name ${name} -m ${status} -s --image ${image}
 
 #In linux where libnotify-bin is available:
 #notification.command = notification-send "${name}" "${status}"

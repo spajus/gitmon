@@ -279,6 +279,7 @@ class Gitmon(object):
         notif_cmd[notif_cmd.index('${status}')] = message.strip()
         notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
                                                     (repo.name, repo.path)
+        notif_cmd[notif_cmd.index('${image}')] = os.path.dirname(sys.argv[0]) + '/git.png' 
         self.exec_notification(notif_cmd, repo.path_full)
        
     def exec_notification(self, notif_cmd, path):
@@ -296,7 +297,7 @@ def dump(obj):
             print 'obj.%s = %s' % (attr, getattr(obj, attr))
 def main():
     global verbose, debug
-    program_name, args = sys.argv[0], sys.argv[1:]
+    args = sys.argv[1:]
     verbose = '-v' in args
     debug = '--debug' in args
     if '--version' in args or '-v' in args:
