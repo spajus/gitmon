@@ -195,7 +195,7 @@ class Update(object):
             if max_files_info > 0:
                 mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
                 if len(self.files) > max_files_info:
-                    mess += '\n(%s more files)' % len(self.files) - max_files_info 
+                    mess += '\n(%s more files)' % (len(self.files) - max_files_info) 
             else:
                 mess += '\nFiles:\n%s' % '\n'.join(self.files)
         return mess
