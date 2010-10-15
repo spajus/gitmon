@@ -11,7 +11,7 @@ crontab or other scheduling tool (optional)
 
 == Usage ==
 
-gitmon [-v] [--debug]
+gitmon [-v] [--debug] [-c gitmon.conf]
 
 You have three  options for placing your configuration file:
   1. Create ~/.gitmon.conf 
@@ -30,7 +30,11 @@ Note: 'git' and 'python' commands should be in crontab's PATH
 If you've done everything right, you should get some notifications.
 
 == Known Issues ==
-So far, none
+* When there is a large number of changes, growl notification may exceed desktop height 
+  therefore it gets not fully visible.
+
+== Roadmap ==
+* GUI version (at least for Mac OS X)
 
 == Contact ==
 Suggestions, improvements?

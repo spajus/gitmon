@@ -15,7 +15,7 @@ import time
 from git import *
 
 #Current version. Print with --version when running
-version = "0.1.3"
+version = "0.1.4"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
@@ -192,9 +192,12 @@ class Update(object):
         """Displays update representation. It's used in notification later."""
         mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
         if self.files:
-            mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
-            if len(self.files) > max_files_info:
-                mess += '\n(%s more files)' % len(self.files) - max_files_info 
+            if max_files_info > 0:
+                mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
+                if len(self.files) > max_files_info:
+                    mess += '\n(%s more files)' % len(self.files) - max_files_info 
+            else:
+                mess += '\nFiles:\n%s' % '\n'.join(self.files)
         return mess
 
 class Gitmon(object):

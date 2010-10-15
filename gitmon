@@ -1,4 +1,6 @@
 #!/bin/bash
+# GitMon launcher script
+
 _LINK=$(readlink -n $0)
 if [ ! $_LINK ]; then
     _LINK=$0
