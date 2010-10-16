@@ -52,6 +52,16 @@ repos.root = ~/Dvelopment/repos
 #Example variable
 #example.var = Something
 
+#######################
+# Repository scanning #
+#######################
+
+#Will scan for repositories in ~/Development/projects
+scan.myrepos = ~/Development/projects
+
+#Another scanned directory
+#scan.misc = /misc/repos
+
 ##########################
 # Repository definitions #
 ##########################

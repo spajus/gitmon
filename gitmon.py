@@ -209,10 +209,12 @@ class Gitmon(object):
     def __init__(self):
         self.config = {}
         self.repos = []
+        self.scan_dirs = []
         self.conf_file = os.getenv('GITMON_CONF', '~/.gitmon.conf')
         self.conf_file = os.path.expanduser(self.conf_file)
         self.load_config()
         self.load_repos()
+        self.scan_repos()
         if debug:
             print 'Loaded config: %s' % self.config
     
@@ -273,7 +275,13 @@ args using '-c'"
                     print 'Tracking repo: "%s" at %s' % (name, path)
                 self.repos.append(Repository(name, path))    
 
-            
+    def scan_repos(self):
+        """Scans provided dirs and recursively searches for repositories"""
+        for root in self.config.keys():
+            if root.startswith('scan.'):
+                root = root.replace('scan.', '')
+                
+
     def check(self):
         """Checks the repositories and displays notifications"""
         for repo in self.repos:
