@@ -6,7 +6,7 @@ Requirements:
 Python 2.6+
 Git
 GitPython (easy_install gitpython)
-growlnotify (recommended), libnotify-bin or any other command-line notification tool
+growlnotify (http://growl.info/), libnotify-bin (on linux) or any other notification tool
 crontab or other scheduling tool (optional)
 
 == Usage ==
