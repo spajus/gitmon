@@ -7,7 +7,7 @@
 ### Mac OS X ###
 
 #Growl notification is currently configured.
-#notification.command = growlnotify -name ${name} -m ${status} -s --image ${image}
+notification.command = growlnotify -name ${name} -m ${status} -s --image ${image}
 
 ### Linux ###
 
