@@ -3,8 +3,9 @@
 """
 GitMon - the Git repository monitor and notifier
 
-Created by Tomas Varaneckas on 2010-09-26.
 Copyright (c) 2010 Tomas Varaneckas. All rights reserved.
+http://www.varaneckas.com
+tomas.varaneckas@gmail.com
 """
 
 import os
@@ -15,20 +16,21 @@ import time
 from git import *
 
 #Current version. Print with --version when running
-version = "0.1.4"
+version = "0.1.5"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
-notify_new_branch = False   
+notify_new_branch = 1   
+#Should gitmon notify when new tag is created? Set in config
+notify_new_tag = 1
 #Should debug output be printed? Override with --debug when running.
 debug = False    
 #Should updates be pulled automatically?
-auto_pull = False
+auto_pull = 0
 #How many latest commits to display?
 max_new_commits = 5
 #How many files to show in changeset. 0 means infinite.
 max_files_info = 3
-
 
 class Repository(object):
     """Works with GitPython's to produce nice status update information"""
@@ -65,7 +67,7 @@ class Repository(object):
                 if hasattr(fi.ref, 'remote_head'):
                     branch = fi.ref.remote_head       
                 else:
-                    if fi.ref.path.startswith('refs/tags/'):
+                    if notify_new_tag and fi.ref.path.startswith('refs/tags/'):
                         if not fi.ref.path in local_refs:
                             up = BranchUpdates()
                             up.set_new_tag(fi.ref.commit, fi.ref.name)
@@ -220,10 +222,9 @@ class Gitmon(object):
             self.conf_file = sys.argv[sys.argv.index('-c') + 1]
         config_found = os.path.isfile(self.conf_file)
         if not config_found:
-            print 'creating initial configuration in %s' % self.conf_file 
-            config = open(self.conf_file, 'w')
-            config.write('test')
-            config.close()
+            print "Configuration not found! Create ~/.gitmon.conf or define $GITMON_CONF \
+to point to proper location. You can also pass configuration file via \
+args using '-c'"
         else:
             if verbose:
                 print 'Loading configuration from %s' % self.conf_file
@@ -236,22 +237,28 @@ class Gitmon(object):
                         else:
                             pair = line.strip().split('=', 1)
                             self.config[pair[0].strip()] = pair[1].strip()
-            global notify_new_branch, auto_pull
-            if self.config.has_key('notify.new.branch'):
-                notify_new_branch = self.config['notify.new.branch']
-            if self.config.has_key('auto.pull'):
-                auto_pull = self.config['auto.pull']
-            if self.config.has_key('max.new.commits'):
-                max_new_commits = self.config['max.new.commits']
-            if self.config.has_key('max.files.info'):
-                max_files_info = self.config['max.files.info']
         for key, val in self.config.items():
             params = re.search("\$\{(.+)\}", val)
             if params:
                 for par in params.groups():
                     if self.config.has_key(par):
                         self.config[key] = re.sub("\$\{(.+)\}", self.config[par], val)
+        self.set_globals()
                         
+    def set_globals(self):
+        """Sets global parameters from configuration"""
+        global notify_new_branch, notify_new_tag, auto_pull, max_new_commits, max_files_info
+        if self.config.has_key('notify.new.branch'):
+            notify_new_branch = int(self.config['notify.new.branch'])
+        if self.config.has_key('notify.new.tag'):
+            notify_new_tag = int(self.config['notify.new.tag'])
+        if self.config.has_key('auto.pull'):
+            auto_pull = int(self.config['auto.pull'])
+        if self.config.has_key('max.new.commits'):
+            max_new_commits = int(self.config['max.new.commits'])
+        if self.config.has_key('max.files.info'):
+            max_files_info = int(self.config['max.files.info'])
+
     def load_repos(self):
         """Loads repository definitions which are found in self.config"""
         for r in self.config.keys():
@@ -280,10 +287,14 @@ class Gitmon(object):
         from config. Replaces ${status} with update status message, 
         ${name} with repo name."""
         notif_cmd = self.config['notification.command'].split(' ')
-        notif_cmd[notif_cmd.index('${status}')] = message.strip()
-        notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
+        if '${status}' in notif_cmd:
+            notif_cmd[notif_cmd.index('${status}')] = message.strip()
+        if '${name}' in notif_cmd:
+            notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
                                                     (repo.name, repo.path)
-        notif_cmd[notif_cmd.index('${image}')] = os.path.dirname(sys.argv[0]) + '/git.png' 
+        if '${image}' in notif_cmd:
+            notif_cmd[notif_cmd.index('${image}')] = os.path.dirname(sys.argv[0]) \
+                                                    + '/git.png' 
         self.exec_notification(notif_cmd, repo.path_full)
        
     def exec_notification(self, notif_cmd, path):

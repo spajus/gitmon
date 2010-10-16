@@ -1,14 +1,26 @@
-#How to notify about changes. Growl notification is currently configured.
-notification.command = growlnotify -name ${name} -m ${status} -s --image ${image}
+# This is GitMon configuration example. Copy it to ~/.gitmon.conf and edit to suit your needs
+
+########################
+# Notification command #
+########################
+
+### Mac OS X ###
+
+#Growl notification is currently configured.
+#notification.command = growlnotify -name ${name} -m ${status} -s --image ${image}
+
+### Linux ###
 
 #In linux where libnotify-bin is available:
 #notification.command = notification-send "${name}" "${status}"
 
-#Pull when checking for updates?
-auto.pull = 1
+### Windows ###
 
-#Notify when new branch appears?
-notify.new.branch = 1
+#Windows users may try to configure their command by using http://www.growlforwindows.com/gfw/
+
+########################
+# Notification details #
+########################
 
 #Maximum number of new commits to show
 max.new.commits = 5
@@ -16,18 +28,44 @@ max.new.commits = 5
 #Maximum number of files to show in commit info. 0 is unlimited.
 max.files.info = 3
 
-#A variable which will be substituted below. You can have many of these
+#Notify when new branch appears?
+notify.new.branch = 1
+
+#Notify when new tag appears?
+notify.new.tag = 1
+
+###############
+# Git options #
+###############
+
+#Pull when checking for updates?
+auto.pull = 1
+
+#############
+# Variables #
+#############
+
+#A variable which will be substituted. You can have many of these
+#In following example ${repos.root} will be replaced with ~/Development/repos
 repos.root = ~/Dvelopment/repos
 
-#Repository definitions
+#Example variable
+#example.var = Something
+
+##########################
+# Repository definitions #
+##########################
 
 #repo-name.name = Repo Name (optional)
 #repo-name.path = /path/to/repo
 
+#GitMon repository
 gitmon.name = GitMon Repo
 gitmon.path = ~/Development/python/gitmon
 
-repo-x.name = Repo X
-repo-x.path = ${repos.root}/repo-x
+#Example repo definition (using ${repos.root} variable defined above)
+#repo-x.name = Repo X
+#repo-x.path = ${repos.root}/repo-x
 
-repo-y.path = ${repos.root}/repo-y
+#Nameless definition example. Name is generated from path
+#repo-y.path = ${repos.root}/repo-y
