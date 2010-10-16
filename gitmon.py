@@ -219,6 +219,7 @@ class Gitmon(object):
         self.scan_repos()
         if debug:
             print 'Loaded config: %s' % self.config
+        self.check_config()
     
     def load_config(self):
         """Loads configuration into self.config dictionary"""
@@ -248,6 +249,15 @@ args using '-c'"
                     if self.config.has_key(par):
                         self.config[key] = re.sub("\$\{(.+)\}", self.config[par], val)
         self.set_globals()
+
+    def check_config(self):
+        if not self.repos:
+            print 'Your configuration file has no repositories. Make sure you have defined \
+repositories or scanned roots in your configuration. Refer to gitmon.conf.example for details.'
+            sys.exit(-1)
+        else:
+            if verbose:
+                print 'Configuration OK, tracking %s repositories' % len(self.repos)
                         
     def set_globals(self):
         """Sets global parameters from configuration"""
