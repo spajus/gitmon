@@ -16,7 +16,7 @@ import time
 from git import *
 
 #Current version. Print with --version when running
-version = "0.1.5"
+version = "0.1.6"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
@@ -31,6 +31,8 @@ auto_pull = 0
 max_new_commits = 5
 #How many files to show in changeset. 0 means infinite.
 max_files_info = 3
+#How deep to scan for repos by default
+default_scan_depth = 3
 
 class Repository(object):
     """Works with GitPython's to produce nice status update information"""
@@ -209,10 +211,12 @@ class Gitmon(object):
     def __init__(self):
         self.config = {}
         self.repos = []
+        self.scan_dirs = []
         self.conf_file = os.getenv('GITMON_CONF', '~/.gitmon.conf')
         self.conf_file = os.path.expanduser(self.conf_file)
         self.load_config()
         self.load_repos()
+        self.scan_repos()
         if debug:
             print 'Loaded config: %s' % self.config
     
@@ -262,18 +266,54 @@ args using '-c'"
     def load_repos(self):
         """Loads repository definitions which are found in self.config"""
         for r in self.config.keys():
-            if r.endswith('.path'):
+            if r.startswith('repo.') and r.endswith('.path'):
                 repo = r.replace('.path', '')
                 if self.config.has_key('%s.name' % repo):
                     name = self.config['%s.name' % repo]
                 else:
-                    name = repo
+                    name = repo.replace('repo.', '')
                 path = self.config['%s.path' % repo]
                 if verbose: 
                     print 'Tracking repo: "%s" at %s' % (name, path)
                 self.repos.append(Repository(name, path))    
 
-            
+    def scan_repos(self):
+        """Scans provided dirs and recursively searches for repositories"""
+        for root in self.config.keys():
+            if root.startswith('scan.') and root.endswith('.path'):
+                root = root.replace('.path', '')
+                if self.config.has_key('%s.name' % root):
+                    name = self.config['%s.name' % root]
+                else:
+                    name = root.replace('scan.', '')
+                if self.config.has_key('%s.depth' % root):
+                    depth = int(self.config['%s.depth' % root])
+                else:
+                    depth = default_scan_depth
+                dir = os.path.expanduser(self.config['%s.path' % root])
+                if verbose:
+                    print 'Scanning for repos in: %s' % dir
+                for repo in self.scan_dir_for_repos(dir, name, depth):
+                    self.repos.append(repo)
+
+    def scan_dir_for_repos(self, root, root_name, depth):
+        """Scans directory recursively in serch of git repositories"""
+        if not depth:
+            return
+        for f in os.listdir(root):
+            dir = '%s/%s' % (root, f)
+            if os.path.isdir(dir):
+                if self.is_git_repo(dir):
+                    if verbose: 
+                        print 'Found git repo: %s' % dir
+                    yield Repository('%s (%s)' % (f, root_name), dir)
+                else:
+                    for repo in self.scan_dir_for_repos(dir, root_name, depth - 1):
+                        yield repo
+
+    def is_git_repo(self, dir):
+        return '.git' in os.listdir(dir) and os.path.isdir(dir + '/.git')
+
     def check(self):
         """Checks the repositories and displays notifications"""
         for repo in self.repos:

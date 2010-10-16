@@ -52,20 +52,32 @@ repos.root = ~/Dvelopment/repos
 #Example variable
 #example.var = Something
 
+#######################
+# Repository scanning #
+#######################
+
+#Will scan for repositories in ~/Development/projects 4 levels deep
+scan.myrepos.name = My Projects
+scan.myrepos.path = ~/Development/projects
+scan.myrepos.depth = 4
+
+#Another scanned directory with minimal input
+#scan.misc.path = /misc/repos
+
 ##########################
 # Repository definitions #
 ##########################
 
-#repo-name.name = Repo Name (optional)
-#repo-name.path = /path/to/repo
+#repo.name.name = Repo Name (optional)
+#name.path = /path/to/repo
 
 #GitMon repository
-gitmon.name = GitMon Repo
-gitmon.path = ~/Development/python/gitmon
+repo.gitmon.name = GitMon Repo
+repo.gitmon.path = ~/Development/python/gitmon
 
 #Example repo definition (using ${repos.root} variable defined above)
-#repo-x.name = Repo X
-#repo-x.path = ${repos.root}/repo-x
+#repo.x.name = Repo X
+#repo.x.path = ${repos.root}/repo-x
 
 #Nameless definition example. Name is generated from path
-#repo-y.path = ${repos.root}/repo-y
+#repo.y.path = ${repos.root}/repo-y
