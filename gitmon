@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# GitMon - The Git Repository Monitor
+# Copyright (C) 2010  Tomas Varaneckas
+# http://www.varaneckas.com
+
 # GitMon launcher script
 
 _LINK=$(readlink -n $0)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-GitMon - the Git repository monitor and notifier
-Copyright (C) 2010 Tomas Varaneckas
+GitMon - The Git Repository Monitor
+Copyright (C) 2010  Tomas Varaneckas
 http://www.varaneckas.com
 
 This program is free software: you can redistribute it and/or modify
@@ -381,10 +381,18 @@ def main():
     args = sys.argv[1:]
     verbose = '-v' in args
     debug = '--debug' in args
-    if '--version' in args or '-v' in args:
-        print 'GitMon v%s' % version
+    if '--version' in args or verbose:
+        print """GitMon v%s  Copyright (C) 2010  Tomas Varaneckas
+
+This program comes with ABSOLUTELY NO WARRANTY; for details read LICENSE file.
+This is free software, and you are welcome to redistribute it
+under certain conditions.""" % version
+        if verbose:
+            print
+    if '--version' in args:
+        sys.exit(0)
     if '-h' in args or '--help' in args:
-        print 'Please read README file for help'
+        print 'Please read README.md file for help'
         sys.exit(0)
     app = Gitmon()
     try:
