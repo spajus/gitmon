@@ -17,12 +17,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import subprocess
+
 class Notifier(object):
     
     def __init__(self, config):
         self.config = config
 
-    def notify(self, title=None, message=None, image=None):
+    def notify(self, title=None, message=None, image=None, cwd=None):
         pass
 
     @classmethod
@@ -31,16 +33,16 @@ class Notifier(object):
             return CommandLineNotifier(config)
 
 class CommandLineNotifier(Notifier):
-    def notify(self, title, message, image):
+
+    def notify(self, title, message, image, cwd):
         notif_cmd = self.config['notification.command'].split(' ')
         if '${message}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${message}')] = message.strip()
+            notif_cmd[notif_cmd.index('${message}')] = message
         if '${title}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${title}')] = '%s\n%s' % \
-                                                    (repo.name, repo.path)
+            notif_cmd[notif_cmd.index('${title}')] = title
         if '${image}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${image}')] = gitmon_dir + '/git.png' 
-        self.exec_notification(notif_cmd, repo.path_full)
+            notif_cmd[notif_cmd.index('${image}')] = image 
+        self.exec_notification(notif_cmd, cwd)
        
     def exec_notification(self, notif_cmd, path):
         """Does the actual execution of notification command"""
@@ -49,3 +51,4 @@ class CommandLineNotifier(Notifier):
         retcode = proc.wait()        
         if retcode != 0:
             print 'Error while notifying: %s, %s' % (retcode, args)
+

@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
-import subprocess
 import re    
 import time
 from git import *
@@ -364,7 +363,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         print "notifier ;%s;" % notifier_type        
         if verbose:
             'Using notifier: %s' % notifier_type
-        notifier.notify(title, message, image)
+        notifier.notify(title, message, image, repo.path_full)
        
         
 def dump(obj):
