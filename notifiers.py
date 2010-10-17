@@ -17,10 +17,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import sys
+sys.path.append('./lib/py_growl')
 import subprocess
+import Growl
 
 class Notifier(object):
-    
+
     def __init__(self, config):
         self.config = config
 
@@ -30,9 +33,19 @@ class Notifier(object):
     @classmethod
     def create(cls, type, config):
         if type == 'command.line':
-            return CommandLineNotifier(config)
+            return CommandLineNotifier.instance(config)
+        if type == 'growl':
+            return GrowlNotifier.instance(config)
 
 class CommandLineNotifier(Notifier):
+
+    inst = None
+
+    @classmethod
+    def instance(cls, config):
+        if not CommandLineNotifier.inst:
+            CommandLineNotifier.inst = CommandLineNotifier(config)
+        return CommandLineNotifier.inst
 
     def notify(self, title, message, image, cwd):
         notif_cmd = self.config['notification.command'].split(' ')
@@ -52,3 +65,24 @@ class CommandLineNotifier(Notifier):
         if retcode != 0:
             print 'Error while notifying: %s, %s' % (retcode, args)
 
+class GrowlNotifier(Notifier):
+
+    inst = None
+   
+    @classmethod
+    def instance(cls, config):
+        if not GrowlNotifier.inst:
+            GrowlNotifier.inst = GrowlNotifier(config)
+        return GrowlNotifier.inst
+
+    def notify(self, title, message, image, cwd):
+        if image:
+            image = Growl.Image.imageFromPath(image)
+        growl = Growl.GrowlNotifier(applicationName='GitMon', \
+                applicationIcon=image, \
+                notifications=['update'], \
+                defaultNotifications=['update'])
+        if not hasattr(self, 'registered'):
+            growl.register()
+            self.registered = True
+        growl.notify('update', title, message, icon=image, sticky=True)
