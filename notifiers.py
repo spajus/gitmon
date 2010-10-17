@@ -48,7 +48,7 @@ class CommandLineNotifier(Notifier):
         return CommandLineNotifier.inst
 
     def notify(self, title, message, image, cwd):
-        notif_cmd = self.config['notification.command'].split(' ')
+        notif_cmd = self.config['command.line.cmd'].split(' ')
         if '${message}' in notif_cmd:
             notif_cmd[notif_cmd.index('${message}')] = message
         if '${title}' in notif_cmd:
@@ -78,6 +78,7 @@ class GrowlNotifier(Notifier):
     def notify(self, title, message, image, cwd):
         if image:
             image = Growl.Image.imageFromPath(image)
+        sticky = int(self.config['growl.sticky.notifications'])
         growl = Growl.GrowlNotifier(applicationName='GitMon', \
                 applicationIcon=image, \
                 notifications=['update'], \
@@ -85,4 +86,4 @@ class GrowlNotifier(Notifier):
         if not hasattr(self, 'registered'):
             growl.register()
             self.registered = True
-        growl.notify('update', title, message, icon=image, sticky=True)
+        growl.notify('update', title, message, icon=image, sticky=sticky)

@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
+sys.path.append('./lib/gitpython')
 import re    
 import time
 from git import *
@@ -353,9 +354,9 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
                     self.notify(repo, '\n'.join([str(sta) for sta in st]))
             
     def notify(self, repo, message):        
-        """Notifies user about status updates with notification.command 
-        from config. Replaces ${status} with update status message, 
-        ${name} with repo name."""
+        """Notifies user about status updates using given notifier.type
+        from config. Replaces ${message} with update status message, 
+        ${title} with repo name and ${image} with path to git.png."""
         title = '%s\n%s' % (repo.name, repo.path)
         message = message.strip()
         image = gitmon_dir + '/git.png'

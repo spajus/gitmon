@@ -5,23 +5,25 @@
 #################
 
 #Notifier implementation. Possible choices: 'command.line', 'growl'
-notifier.type = command.line
+notifier.type = growl
 
-#########################
-# Command Line Notifier #
-#########################
+##########################
+# Growl Notifier options #
+##########################
 
-### Mac OS X ###
+#These options are relevant to notifier.type = growl
 
-#Growl notification is currently configured.
-notification.command = growlnotify -name ${title} -m ${message} -s --image ${image}
+#Keep notifications on screen untill you close them 
+growl.sticky.notifications = 0
 
-### Linux ###
+#################################
+# Command Line Notifier options #
+#################################
+
+#When you are using notifier.type = command.line, you have to define notification.command  
 
 #In linux where libnotify-bin is available:
-#notification.command = notification-send "${title}" "${message}"
-
-### Windows ###
+#command.line.cmd = notification-send "${title}" "${message}"
 
 #Windows users may try to configure their command by using http://www.growlforwindows.com/gfw/
 
