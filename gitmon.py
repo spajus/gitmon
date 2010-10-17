@@ -21,13 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
-import subprocess
+sys.path.append('./lib/gitpython')
 import re    
 import time
 from git import *
+from notifiers import *
 
 #Current version. Print with --version when running
-version = "0.1.6"
+version = "0.2.0"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
@@ -44,6 +45,10 @@ max_new_commits = 5
 max_files_info = 3
 #How deep to scan for repos by default
 default_scan_depth = 3
+#Program dir
+gitmon_dir = '.'
+#Notifier type
+notifier_type = 'command.line'
 
 class Repository(object):
     """Works with GitPython's to produce nice status update information"""
@@ -273,6 +278,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
     def set_globals(self):
         """Sets global parameters from configuration"""
         global notify_new_branch, notify_new_tag, auto_pull, max_new_commits, max_files_info
+        global notifier_type
         if self.config.has_key('notify.new.branch'):
             notify_new_branch = int(self.config['notify.new.branch'])
         if self.config.has_key('notify.new.tag'):
@@ -283,6 +289,10 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             max_new_commits = int(self.config['max.new.commits'])
         if self.config.has_key('max.files.info'):
             max_files_info = int(self.config['max.files.info'])
+        if self.config.has_key('notifier.type'):
+            notifier_type = self.config['notifier.type']
+        global gitmon_dir
+        gitmon_dir = os.path.dirname(sys.argv[0])
 
     def load_repos(self):
         """Loads repository definitions which are found in self.config"""
@@ -344,28 +354,18 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
                     self.notify(repo, '\n'.join([str(sta) for sta in st]))
             
     def notify(self, repo, message):        
-        """Notifies user about status updates with notification.command 
-        from config. Replaces ${status} with update status message, 
-        ${name} with repo name."""
-        notif_cmd = self.config['notification.command'].split(' ')
-        if '${status}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${status}')] = message.strip()
-        if '${name}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${name}')] = '%s\n%s' % \
-                                                    (repo.name, repo.path)
-        if '${image}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${image}')] = os.path.dirname(sys.argv[0]) \
-                                                    + '/git.png' 
-        self.exec_notification(notif_cmd, repo.path_full)
+        """Notifies user about status updates using given notifier.type
+        from config. Replaces ${message} with update status message, 
+        ${title} with repo name and ${image} with path to git.png."""
+        title = '%s\n%s' % (repo.name, repo.path)
+        message = message.strip()
+        image = gitmon_dir + '/git.png'
+        notifier = Notifier.create(notifier_type, self.config)
+        print "notifier ;%s;" % notifier_type        
+        if verbose:
+            'Using notifier: %s' % notifier_type
+        notifier.notify(title, message, image, repo.path_full)
        
-    def exec_notification(self, notif_cmd, path):
-        """Does the actual execution of notification command"""
-        proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
-        output, _ = proc.communicate()
-        retcode = proc.wait()        
-        if retcode != 0:
-            print 'Error while notifying: %s, %s' % (retcode, args)
-    
         
 def dump(obj):
     if debug:
