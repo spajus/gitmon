@@ -1,18 +1,25 @@
 # This is GitMon configuration example. Copy it to ~/.gitmon.conf and edit to suit your needs
 
-########################
-# Notification command #
-########################
+#################
+# Notifier type #
+#################
+
+#Notifier implementation. Possible choices: 'command.line', 'growl'
+notifier.type = command.line
+
+#########################
+# Command Line Notifier #
+#########################
 
 ### Mac OS X ###
 
 #Growl notification is currently configured.
-notification.command = growlnotify -name ${name} -m ${status} -s --image ${image}
+notification.command = growlnotify -name ${title} -m ${message} -s --image ${image}
 
 ### Linux ###
 
 #In linux where libnotify-bin is available:
-#notification.command = notification-send "${name}" "${status}"
+#notification.command = notification-send "${title}" "${message}"
 
 ### Windows ###
 
