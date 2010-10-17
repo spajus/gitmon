@@ -360,18 +360,12 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         title = '%s\n%s' % (repo.name, repo.path)
         message = message.strip()
         image = gitmon_dir + '/git.png'
-        
-        notifier = Notifier.create(notifier_type)
+        notifier = Notifier.create(notifier_type, self.config)
+        print "notifier ;%s;" % notifier_type        
+        if verbose:
+            'Using notifier: %s' % notifier_type
         notifier.notify(title, message, image)
        
-    def exec_notification(self, notif_cmd, path):
-        """Does the actual execution of notification command"""
-        proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
-        output, _ = proc.communicate()
-        retcode = proc.wait()        
-        if retcode != 0:
-            print 'Error while notifying: %s, %s' % (retcode, args)
-    
         
 def dump(obj):
     if debug:
