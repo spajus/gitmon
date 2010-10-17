@@ -14,7 +14,7 @@ notifier.type = growl
 #These options are relevant to notifier.type = growl
 
 #Keep notifications on screen untill you close them 
-growl.sticky.notifications = 0
+growl.sticky.notifications = 1
 
 #################################
 # Command Line Notifier options #
