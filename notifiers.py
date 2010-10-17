@@ -18,13 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 class Notifier(object):
+    
+    def __init__(self, config):
+        self.config = config
+
     def notify(self, title=None, message=None, image=None):
         pass
 
     @classmethod
-    def create(cls, type):
+    def create(cls, type, config):
         if type == 'command.line':
-            return CommandLineNotifier()
+            return CommandLineNotifier(config)
 
 class CommandLineNotifier(Notifier):
     def notify(self, title, message, image):
