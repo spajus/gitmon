@@ -2,10 +2,21 @@
 # encoding: utf-8
 """
 GitMon - the Git repository monitor and notifier
-
-Copyright (c) 2010 Tomas Varaneckas. All rights reserved.
+Copyright (C) 2010 Tomas Varaneckas
 http://www.varaneckas.com
-tomas.varaneckas@gmail.com
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import os
@@ -376,7 +387,11 @@ def main():
         print 'Please read README file for help'
         sys.exit(0)
     app = Gitmon()
-    app.check()
+    try:
+        app.check()
+    except KeyboardInterrupt:
+        print 'Interrupted. Cancelling checks.'
+        sys.exit(-1)
 
 if __name__ == '__main__':
     main()
