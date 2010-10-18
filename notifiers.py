@@ -32,6 +32,7 @@ class Notifier(object):
 
     @classmethod
     def create(cls, type, config):
+        """Returns singleton instance of given notifier type"""
         if type == 'command.line':
             return CommandLineNotifier.instance(config)
         if type == 'growl':

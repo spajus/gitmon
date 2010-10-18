@@ -39,6 +39,8 @@ notify_new_tag = 1
 debug = False    
 #Should updates be pulled automatically?
 auto_pull = 0
+#Should stale remote references be deleted and notified about?
+auto_delete_stale = 0
 #How many latest commits to display?
 max_new_commits = 5
 #How many files to show in changeset. 0 means infinite.
@@ -134,15 +136,23 @@ class Repository(object):
                         print 'Failed pulling repo: %s, %s' % (self.name, e)
             # At this point we're done with checking for new additions, now let's check
             # if anything was removed
-            remote_ref_names = [ref.path for ref in remote_refs]
-            for ref in self.repo.remotes.origin.refs:
-                if ref.remote_ref == 'HEAD':
-                    continue
-                if not ref.path in remote_ref_names:
-                    dump(ref)
-                    up = BranchUpdates(ref.remote_ref)
-                    up.set_removed(ref.commit)
-                    updates.append(up)
+
+            # It's possible to simply use self.repo.stale_refs for that, but it makes
+            # a remote call
+            if auto_delete_stale:
+                remote_ref_names = [ref.path for ref in remote_refs]
+                for ref in self.repo.remotes.origin.refs:
+                    if not ref.path in remote_ref_names:
+                        if hasattr(ref, 'remote_head'):
+                            if ref.remote_head == 'HEAD':
+                                continue
+                            name = ref.remote_head
+                        else:
+                            name = ref.name
+                        up = BranchUpdates(name)
+                        up.set_removed(ref.commit)
+                        updates.append(up)
+                        RemoteReference.delete(self.repo, ref)
             print 'Updates: %s' % updates
             updates = self.filter_updates(updates)
             print 'Filtered updates: %s' % updates
@@ -231,7 +241,7 @@ class Update(object):
         if new_branch:
             self.message = 'New branch created'
         elif deleted:
-            self.message = 'This remote reference no longer appears in origin'
+            self.message = 'This remote reference no longer appears in origin. It was removed locally.'
         else:
             self.message = commit.message.strip()
             if not new_tag:
@@ -309,7 +319,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
     def set_globals(self):
         """Sets global parameters from configuration"""
         global notify_new_branch, notify_new_tag, auto_pull, max_new_commits, max_files_info
-        global notifier_type
+        global notifier_type, auto_delete_stale
         if self.config.has_key('notify.new.branch'):
             notify_new_branch = int(self.config['notify.new.branch'])
         if self.config.has_key('notify.new.tag'):
@@ -322,6 +332,8 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             max_files_info = int(self.config['max.files.info'])
         if self.config.has_key('notifier.type'):
             notifier_type = self.config['notifier.type']
+        if self.config.has_key('auto.delete.stale'):
+            auto_delete_stale = int(self.config['auto.delete.stale'])
         global gitmon_dir
         gitmon_dir = os.path.dirname(sys.argv[0])
 
