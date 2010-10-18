@@ -66,13 +66,22 @@ class Repository(object):
     def check_status(self):
         """Fetches remote heads and compares the received data to remote refs
          stored in local git repo. Differences are returned as a list of
-         StatusUpdates """
+         StatusUpdates 
+         
+         FIXME: in future removal of tags and branches must also be displayed.
+         Local refs: repo.remotes.origin.refs
+         Remote refs: 
+         fi = repo.remotes.origin.fetch()
+         check if fi[x].ref is not in local refs and notify. Perhaps delete 
+         local ref to avoid notification reappearance.
+         
+         """
         updates = []
         if verbose: 
             print 'Checking repo: %s' % self.name
         
         #get last commits in current remote ref
-        local_commits, remote_commits, local_refs = {}, [], []
+        local_commits, remote_commits, local_refs, remote_refs = {}, [], [], []
         for rem in self.repo.remotes.origin.refs:
             local_refs.append(rem.name)
             local_commits[rem.remote_head] = rem.commit
@@ -82,6 +91,7 @@ class Repository(object):
             remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
+                remote_refs.append(fi.ref)
                 if hasattr(fi.ref, 'remote_head'):
                     branch = fi.ref.remote_head       
                 else:
@@ -122,7 +132,21 @@ class Repository(object):
                 except Exception as e:
                     if verbose:
                         print 'Failed pulling repo: %s, %s' % (self.name, e)
-            return self.filter_updates(updates)
+            # At this point we're done with checking for new additions, now let's check
+            # if anything was removed
+            remote_ref_names = [ref.path for ref in remote_refs]
+            for ref in self.repo.remotes.origin.refs:
+                if ref.remote_ref == 'HEAD':
+                    continue
+                if not ref.path in remote_ref_names:
+                    dump(ref)
+                    up = BranchUpdates(ref.remote_ref)
+                    up.set_removed(ref.commit)
+                    updates.append(up)
+            print 'Updates: %s' % updates
+            updates = self.filter_updates(updates)
+            print 'Filtered updates: %s' % updates
+            return updates
         except AssertionError as e:
             if verbose:
                 print 'Failed checking for updates: %s' % self.path
@@ -177,13 +201,18 @@ class BranchUpdates(object):
         """Marks this update status as new branch"""
         self.branch = self.branch
         self.type = ' (New branch)'
-        self.updates.append(Update(commit, True))
+        self.updates.append(Update(commit, new_branch=True))
 
     def set_new_tag(self, commit, tag):
         """Marks this update as new tag"""
         self.branch = tag
         self.type = ' (New tag)'
-        self.updates.append(Update(commit, None, True))
+        self.updates.append(Update(commit, new_tag=True))
+
+    def set_removed(self, commit):
+        """Marks this update as deleted in remote origin"""
+        self.type = ' (Removed)'
+        self.updates.append(Update(commit, deleted=True))
 
     def add(self, update):
         """Appends an update to this update status"""
@@ -195,12 +224,14 @@ class BranchUpdates(object):
 
 class Update(object):
     """Contains information about single commit""" 
-    def __init__(self, commit, new_branch=None, new_tag=False):
+    def __init__(self, commit, new_branch=False, new_tag=False, deleted=False):
         self.files = []
         self.author = commit.committer.name.strip()
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
         if new_branch:
             self.message = 'New branch created'
+        elif deleted:
+            self.message = 'This remote reference no longer appears in origin'
         else:
             self.message = commit.message.strip()
             if not new_tag:
