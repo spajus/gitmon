@@ -28,7 +28,7 @@ from git import *
 from notifiers import *
 
 #Current version. Print with --version when running
-version = "0.2.0"
+version = "0.2.1"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should gitmon notify when new branch is created? Set in config.
