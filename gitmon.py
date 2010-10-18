@@ -150,12 +150,11 @@ class Repository(object):
                         else:
                             name = ref.name
                         up = BranchUpdates(name)
+                        # XXX old commits may get lost within many updates even if branch/tag was just removed 
                         up.set_removed(ref.commit)
                         updates.append(up)
                         RemoteReference.delete(self.repo, ref)
-            print 'Updates: %s' % updates
             updates = self.filter_updates(updates)
-            print 'Filtered updates: %s' % updates
             return updates
         except AssertionError as e:
             if verbose:
@@ -404,7 +403,6 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         message = message.strip()
         image = gitmon_dir + '/git.png'
         notifier = Notifier.create(notifier_type, self.config)
-        print "notifier ;%s;" % notifier_type        
         if verbose:
             'Using notifier: %s' % notifier_type
         notifier.notify(title, message, image, repo.path_full)
