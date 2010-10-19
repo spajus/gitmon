@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import sys
-sys.path.append('./lib/py_growl')
+import os
+sys.path.append(os.path.dirname(sys.argv[0]) + '/lib/py_growl')
 import subprocess
 import Growl
 
