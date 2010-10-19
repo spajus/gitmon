@@ -50,6 +50,9 @@ notify.new.tag = 1
 #Pull when checking for updates?
 auto.pull = 1
 
+#Remove stale branches (and notify about them)
+auto.delete.stale = 0
+
 #############
 # Variables #
 #############
