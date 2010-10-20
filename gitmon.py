@@ -26,6 +26,7 @@ import re
 import time
 from git import *
 from notifiers import *
+import sched
 
 #Current version. Print with --version when running
 version = "0.2.1"
@@ -51,6 +52,8 @@ default_scan_depth = 3
 gitmon_dir = '.'
 #Notifier type
 notifier_type = 'command.line'
+#Repository check delay in minutes
+check_delay = 5
 
 class Repository(object):
     """Works with GitPython's to produce nice status update information"""
@@ -90,6 +93,9 @@ class Repository(object):
         
         try:
             #fetch new data
+            if debug:
+                import pdb
+                pdb.set_trace()
             remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
@@ -318,7 +324,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
     def set_globals(self):
         """Sets global parameters from configuration"""
         global notify_new_branch, notify_new_tag, auto_pull, max_new_commits, max_files_info
-        global notifier_type, auto_delete_stale
+        global notifier_type, auto_delete_stale, check_delay
         if self.config.has_key('notify.new.branch'):
             notify_new_branch = int(self.config['notify.new.branch'])
         if self.config.has_key('notify.new.tag'):
@@ -333,6 +339,8 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             notifier_type = self.config['notifier.type']
         if self.config.has_key('auto.delete.stale'):
             auto_delete_stale = int(self.config['auto.delete.stale'])
+        if self.config.has_key('check.delay.minutes'):
+            check_delay = int(self.config['check.delay.minutes'])
         global gitmon_dir
         gitmon_dir = os.path.dirname(sys.argv[0])
 
@@ -389,9 +397,26 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
 
     def check(self):
         """Checks the repositories and displays notifications"""
-        for repo, st in self.get_repo_updates():
-            if st:
-                self.notify(repo, '\n'.join([str(sta) for sta in st]))
+        scheduler = sched.scheduler(time.time, time.sleep)
+        self.check_again = True
+        self.do_check(scheduler)
+        while not scheduler.empty():
+            scheduler.run()
+
+    def do_check(self, scheduler):
+        try:
+            for repo, st in self.get_repo_updates():
+                if st:
+                    self.notify(repo, '\n'.join([str(sta) for sta in st]))
+        except KeyboardInterrupt:
+            print 'Stopping checks due to interrupt'
+            self.check_again = False
+        if self.check_again:
+            if verbose:
+                print 'Scheduling a check in %s minutes' % check_delay
+            scheduler.enter(check_delay * 60, 1, self.do_check, ([scheduler]))
+        else:
+            print 'Stopping scheduler'
 
     def get_repo_updates(self):
         for repo in self.repos:
