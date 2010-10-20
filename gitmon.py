@@ -389,17 +389,20 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
 
     def check(self):
         """Checks the repositories and displays notifications"""
+        for repo, st in self.get_repo_updates():
+            if st:
+                self.notify(repo, '\n'.join([str(sta) for sta in st]))
+
+    def get_repo_updates(self):
         for repo in self.repos:
             if hasattr(repo, 'repo'):
-                st = repo.check_status() 
-                if st:
-                    self.notify(repo, '\n'.join([str(sta) for sta in st]))
+                yield (repo, repo.check_status())
             
     def notify(self, repo, message):        
         """Notifies user about status updates using given notifier.type
         from config. Replaces ${message} with update status message, 
         ${title} with repo name and ${image} with path to git.png."""
-        title = '%s\n%s' % (repo.name, repo.path)
+        title = '%s\n%s' % (repo.name, repo.path.replace(os.path.expanduser('~'), '~'))
         message = message.strip()
         image = gitmon_dir + '/git.png'
         notifier = Notifier.create(notifier_type, self.config)
