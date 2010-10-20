@@ -8,9 +8,7 @@ Requirements:
 
 * Python 2.6+
 * Git
-* GitPython (easy_install gitpython)
 * growlnotify (http://growl.info/), libnotify-bin (on linux) or any other notification tool
-* crontab or other scheduling tool (optional)
 
 Usage
 -----
@@ -24,15 +22,6 @@ You have three  options for placing your configuration file:
 3. Run gitmon with -c /path/to/config.file
 
 Refer to provided gitmon.conf.example when creating your configuration.
-
-You can set up a crontab with your prefered timing to execute gitmon 
-automatically, i.e: 
-
-    */5 * * * * /path/to/gitmon > /tmp/gitmon.log
-
-Note: 'git' and 'python' commands should be in crontab's PATH
-
-If you've done everything right, you should get some notifications.
 
 Known Issues
 ------------
