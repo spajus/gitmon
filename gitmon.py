@@ -397,26 +397,9 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
 
     def check(self):
         """Checks the repositories and displays notifications"""
-        scheduler = sched.scheduler(time.time, time.sleep)
-        self.check_again = True
-        self.do_check(scheduler)
-        while not scheduler.empty():
-            scheduler.run()
-
-    def do_check(self, scheduler):
-        try:
-            for repo, st in self.get_repo_updates():
-                if st:
-                    self.notify(repo, '\n'.join([str(sta) for sta in st]))
-        except KeyboardInterrupt:
-            print 'Stopping checks due to interrupt'
-            self.check_again = False
-        if self.check_again:
-            if verbose:
-                print 'Scheduling a check in %s minutes' % check_delay
-            scheduler.enter(check_delay * 60, 1, self.do_check, ([scheduler]))
-        else:
-            print 'Stopping scheduler'
+        for repo, st in self.get_repo_updates():
+            if st:
+                self.notify(repo, '\n'.join([str(sta) for sta in st]))
 
     def get_repo_updates(self):
         for repo in self.repos:
@@ -463,12 +446,35 @@ under certain conditions.""" % version
     if '-h' in args or '--help' in args:
         print 'Please read README.md file for help'
         sys.exit(0)
-    app = Gitmon()
+    scheduler = sched.scheduler(time.time, time.sleep)
+    do_check(scheduler)
+    while not scheduler.empty():
+        try:
+            scheduler.run()
+        except KeyboardInterrupt as ke:
+            print 'Keyboard interrupt, stopping scheduler'
+            break
+        except Exception as e:
+            print 'Unexpected error: %s' % e
+
+def do_check(scheduler):
+    """When checking, scheduler creates new instance of Gitmon 
+    (to refresh configuration and repos). Afterwards a new check
+    gets scheduled."""
     try:
+        check_again = True
+        app = Gitmon()
         app.check()
+        app = None
     except KeyboardInterrupt:
-        print 'Interrupted. Cancelling checks.'
-        sys.exit(-1)
+        print 'Stopping checks due to interrupt'
+        check_again = False
+    if check_again:
+        if verbose:
+            print 'Scheduling a check in %s minutes' % check_delay
+        scheduler.enter(check_delay * 60, 1, do_check, ([scheduler]))
+    else:
+        print 'Stopping scheduler'
 
 if __name__ == '__main__':
     main()
