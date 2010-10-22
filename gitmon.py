@@ -93,9 +93,6 @@ class Repository(object):
         
         try:
             #fetch new data
-            if debug:
-                import pdb
-                pdb.set_trace()
             remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
@@ -241,8 +238,13 @@ class Update(object):
     """Contains information about single commit""" 
     def __init__(self, commit, new_branch=False, new_tag=False, deleted=False):
         self.files = []
-        self.author = commit.committer.name.strip()
-        self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(commit.committed_date))
+        if new_branch or new_tag or deleted:
+            self.date = time.strftime('%Y-%m-%d %H:%M:%S')
+            self.author = ''
+        else:
+            self.author = commit.committer.name.strip()
+        
+        self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(commit.committed_date))
         if new_branch:
             self.message = 'New branch created'
         elif deleted:
@@ -256,7 +258,10 @@ class Update(object):
 
     def __str__(self):
         """Displays update representation. It's used in notification later."""
-        mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
+        if self.author:
+            mess = '----------\n%s\n%s: %s' % (self.date, self.author, self.message)
+        else:
+            mess = '----------\n%s\n%s' % (self.date, self.message)
         if self.files:
             if max_files_info > 0:
                 mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
