@@ -143,20 +143,18 @@ class Repository(object):
             # It's possible to simply use self.repo.stale_refs for that, but it makes
             # a remote call
             if auto_delete_stale:
-                remote_ref_names = [ref.path for ref in remote_refs]
-                for ref in self.repo.remotes.origin.refs:
-                    if not ref.path in remote_ref_names:
-                        if hasattr(ref, 'remote_head'):
-                            if ref.remote_head == 'HEAD':
-                                continue
-                            name = ref.remote_head
+                for ref in self.repo.remotes.stale_refs:
+                    if hasattr(ref, 'remote_head'):
+                        if ref.remote_head == 'HEAD':
+                            continue
+                    name = ref.remote_head
                         else:
                             name = ref.name
-                        up = BranchUpdates(name)
-                        # XXX old commits may get lost within many updates even if branch/tag was just removed 
-                        up.set_removed(ref.commit)
-                        updates.append(up)
-                        RemoteReference.delete(self.repo, ref)
+                    up = BranchUpdates(name)
+                    # XXX old commits may get lost within many updates even if branch/tag was just removed 
+                    up.set_removed(ref.commit)
+                    updates.append(up)
+                    RemoteReference.delete(self.repo, ref)
             updates = self.filter_updates(updates)
             return updates
         except AssertionError as e:
