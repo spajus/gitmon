@@ -143,7 +143,7 @@ class Repository(object):
             # It's possible to simply use self.repo.stale_refs for that, but it makes
             # a remote call
             if auto_delete_stale:
-                for ref in self.repo.remotes.stale_refs:
+                for ref in self.repo.remotes.origin.stale_refs:
                     if hasattr(ref, 'remote_head'):
                         if ref.remote_head == 'HEAD':
                             continue
