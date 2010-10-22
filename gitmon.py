@@ -92,9 +92,6 @@ class Repository(object):
         
         try:
             #fetch new data
-            if debug:
-                import pdb
-                pdb.set_trace()
             remote = self.repo.remotes.origin.fetch()
             #check latest commits from remote
             for fi in remote:
@@ -449,6 +446,8 @@ def main():
     args = sys.argv[1:]
     verbose = '-v' in args
     debug = '--debug' in args
+    verbose = 1
+    debug = 1
     if '--version' in args or verbose:
         print """GitMon v%s  Copyright (C) 2010  Tomas Varaneckas
 

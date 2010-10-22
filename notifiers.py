@@ -75,11 +75,11 @@ class GrowlNotifier(Notifier):
         return GrowlNotifier.inst
 
     def notify(self, title, message, image, cwd):
-        if image:
-            image = Growl.Image.imageFromPath(image)
+###        if image:
+#            image = Growl.Image.imageFromPath(image)
         sticky = int(self.config['growl.sticky.notifications'])
         growl = Growl.GrowlNotifier(applicationName='GitMon', \
-                applicationIcon=image, \
+#                applicationIcon=image, \
                 notifications=['update'], \
                 defaultNotifications=['update'])
         if not hasattr(self, 'registered'):
