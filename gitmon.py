@@ -147,9 +147,9 @@ class Repository(object):
                     if hasattr(ref, 'remote_head'):
                         if ref.remote_head == 'HEAD':
                             continue
-                    name = ref.remote_head
-                        else:
-                            name = ref.name
+                        name = ref.remote_head
+                    else:
+                        name = ref.name
                     up = BranchUpdates(name)
                     # XXX old commits may get lost within many updates even if branch/tag was just removed 
                     up.set_removed(ref.commit)
