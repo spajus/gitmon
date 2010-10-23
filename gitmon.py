@@ -54,6 +54,8 @@ gitmon_dir = '.'
 notifier_type = 'command.line'
 #Repository check delay in minutes
 check_delay = 5
+#use built-in scheduler
+scheduler_builtin = 0
 
 class Repository(object):
     """Works with GitPython's to produce nice status update information"""
@@ -327,7 +329,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
     def set_globals(self):
         """Sets global parameters from configuration"""
         global notify_new_branch, notify_new_tag, auto_pull, max_new_commits, max_files_info
-        global notifier_type, auto_delete_stale, check_delay
+        global notifier_type, auto_delete_stale, check_delay, scheduler_builtin
         if self.config.has_key('notify.new.branch'):
             notify_new_branch = int(self.config['notify.new.branch'])
         if self.config.has_key('notify.new.tag'):
@@ -344,6 +346,8 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             auto_delete_stale = int(self.config['auto.delete.stale'])
         if self.config.has_key('check.delay.minutes'):
             check_delay = int(self.config['check.delay.minutes'])
+        if self.config.has_key('scheduler.builtin'):
+            scheduler_builtin = int(self.config['scheduler.builtin']) 
         global gitmon_dir
         gitmon_dir = os.path.dirname(sys.argv[0])
 
@@ -449,9 +453,12 @@ under certain conditions.""" % version
     if '-h' in args or '--help' in args:
         print 'Please read README.md file for help'
         sys.exit(0)
-    scheduler = sched.scheduler(time.time, time.sleep)
+    if scheduler_builtin:
+        scheduler = sched.scheduler(time.time, time.sleep)
+    else:
+        scheduler = None
     do_check(scheduler)
-    while not scheduler.empty():
+    while scheduler and not scheduler.empty():
         try:
             scheduler.run()
         except KeyboardInterrupt as ke:
@@ -459,6 +466,7 @@ under certain conditions.""" % version
             break
         except Exception as e:
             print 'Unexpected error: %s' % e
+            dump(e)
 
 def do_check(scheduler):
     """When checking, scheduler creates new instance of Gitmon 
@@ -472,12 +480,13 @@ def do_check(scheduler):
     except KeyboardInterrupt:
         print 'Stopping checks due to interrupt'
         check_again = False
-    if check_again:
+    if check_again and scheduler:
         if verbose:
             print 'Scheduling a check in %s minutes' % check_delay
         scheduler.enter(check_delay * 60, 1, do_check, ([scheduler]))
     else:
-        print 'Stopping scheduler'
+        if verbose:
+            print 'Done checking'
 
 if __name__ == '__main__':
     main()
