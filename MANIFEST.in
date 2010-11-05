@@ -1,0 +1,3 @@
+include lib/gitmon/git.png
+include lib/gitmon/gitmon.conf.example
+include misc/gitmon
