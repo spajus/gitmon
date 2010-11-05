@@ -11,11 +11,13 @@ except ImportError:
 setup(
     name = 'GitMon',
     version = '0.3',
-    packages = find_packages('src'),
-    scripts = ['gitmon/gitmon'],
-    data_files = ['gitmon/git.png'],
+    packages = find_packages('lib/gitmon'),
+    #package_dir = {'' : 'lib'},
+    scripts = ['misc/gitmon'],
+    data_files = ['misc/git.png', 'misc/gitmon.conf.example'],
 
-    install_requires = ['gitpython >= 0.3.0_Beta2', 'py_Growl >= 0.0.7'],
+    requires = ('gitpython (>=0.2.9)', 'py_Growl (>=0.0.7)'),
+    install_requires = ['gitpython >= 0.2.9', 'py_Growl >= 0.0.7'],
 
     #Metadata for PyPI
     author = 'Tomas Varaneckas',
