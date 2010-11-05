@@ -21,6 +21,7 @@ import sys
 import os
 import re    
 import time
+import shutil
 from git import *
 from notifiers import *
 
@@ -290,11 +291,22 @@ class Gitmon(object):
     
     def load_config(self):
         """Loads configuration into self.config dictionary"""
+        global gitmon_dir
+        gitmon_dir = os.path.dirname(__file__)
         config_found = os.path.isfile(self.conf_file)
         if not config_found:
-            print "Configuration not found! Create ~/.gitmon.conf or define $GITMON_CONF \
-to point to proper location. You can also pass configuration file via \
-args using '-c'"
+            shutil.copyfile(gitmon_dir + '/gitmon.conf.example', os.path.expanduser('~/.gitmon.conf'))
+            print """Configuration not found! ~/.gitmon.conf was created for you. \
+Edit it to tailor your needs.
+
+You can schedule gitmon to run with contab:
+
+# Edit with 'crontab -e'
+# 'git' must be in cron's PATH
+PATH=/usr/bin:/usr/local/bin/:/bin
+*/5 * * * * gitmon
+"""
+            sys.exit(0)
         else:
             if verbose:
                 print 'Loading configuration from %s' % self.conf_file
@@ -346,8 +358,6 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             check_delay = int(self.config['check.delay.minutes'])
         if self.config.has_key('scheduler.builtin'):
             scheduler_builtin = bool(int(self.config['scheduler.builtin'])) 
-        global gitmon_dir
-        gitmon_dir = os.path.dirname(__file__)
 
     def use_builtin_scheduler(self): 
         return scheduler_builtin
