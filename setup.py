@@ -14,9 +14,10 @@ setup(
     packages = find_packages('lib'),
     package_dir = {'' : 'lib'},
     scripts = ['misc/gitmon'],
-    data_files = ['misc/git.png', 'misc/gitmon.conf.example'],
+    data_files = ['misc/gitmon.conf.example'],
 
     zip_safe = False,
+    include_package_data = True,
 
     requires = ('gitpython (>=0.2.9)', 'py_Growl (>=0.0.7)'),
     install_requires = ['gitpython >= 0.2.9', 'py_Growl >= 0.0.7'],
