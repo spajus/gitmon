@@ -12,10 +12,10 @@ setup(
     name = 'GitMon',
     version = '0.3',
     packages = find_packages(),
-    scripts = ['gitmon/gitmon.py', 'gitmon/notifiers.py'],
-    data_files = ['gitmon/git.png', 'gitmon/gitmon'],
+    scripts = ['gitmon/gitmon'],
+    data_files = ['gitmon/git.png'],
 
-    install_requires = ['gitpython >= 0.3', 'py_Growl >= 0.0.7'],
+    install_requires = ['gitpython >= 0.3.0_Beta2', 'py_Growl >= 0.0.7'],
 
     #Metadata for PyPI
     author = 'Tomas Varaneckas',

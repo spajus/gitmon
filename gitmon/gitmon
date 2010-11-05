@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env python
+# encoding: utf-8
 
 # GitMon - The Git Repository Monitor
 # Copyright (C) 2010  Tomas Varaneckas
@@ -6,12 +7,78 @@
 
 # GitMon launcher script
 
-_LINK=$(readlink -n $0)
-if [ ! $_LINK ]; then
-    _LINK=$0
-fi
-GITMON_DIR=$(dirname $_LINK) 
-if [ ! $GITMON_DIR ]; then
-    GITMON_DIR=$(dirname $0)
-fi
-exec python $GITMON_DIR/gitmon.py "$@"
+import sys
+from gitmon import Gitmon
+import sched
+
+#Current version. Print with --version when running
+version = "0.3.0"
+#Should gitmon produce verbose output? Override with -v when running.
+verbose = False 
+#Should debug output be printed? Override with --debug when running.
+debug = False    
+
+def main():
+    global verbose, debug
+    args = sys.argv[1:]
+    verbose = '-v' in args
+    debug = '--debug' in args
+    if '--version' in args or verbose:
+        print """GitMon v%s  Copyright (C) 2010  Tomas Varaneckas
+
+This program comes with ABSOLUTELY NO WARRANTY; for details read LICENSE file.
+This is free software, and you are welcome to redistribute it
+under certain conditions.""" % version
+        if verbose:
+            print
+    if '--version' in args:
+        sys.exit(0)
+    if '-h' in args or '--help' in args:
+        print 'Please read README.md file for help'
+        sys.exit(0)
+    
+    if '-c' in sys.argv:
+        conf_file = sys.argv[sys.argv.index('-c') + 1]
+    else:
+        conf_file = None
+    scheduler = do_check(conf_file = conf_file)
+    while scheduler and not scheduler.empty():
+        try:
+            scheduler.run()
+        except KeyboardInterrupt as ke:
+            print 'Keyboard interrupt, stopping scheduler'
+            break
+        except Exception as e:
+            print 'Unexpected error: %s' % e
+            dump(e)
+
+def do_check(scheduler = None, conf_file = None):
+    """When checking, scheduler creates new instance of Gitmon 
+    (to refresh configuration and repos). Afterwards a new check
+    gets scheduled."""
+    try:
+        check_again = True
+        app = Gitmon(conf_file)
+        app.set_verbose(verbose)
+        app.set_debug(debug)
+        if not scheduler:
+            if app.use_builtin_scheduler():
+                scheduler = sched.scheduler(time.time, time.sleep)
+            else:
+                scheduler = None
+        app.check()
+        app = None
+        return scheduler
+    except KeyboardInterrupt:
+        print 'Stopping checks due to interrupt'
+        check_again = False
+    if check_again and scheduler:
+        if verbose:
+            print 'Scheduling a check in %s minutes' % check_delay
+        scheduler.enter(check_delay * 60, 1, do_check, ([scheduler, conf_file]))
+    else:
+        if verbose:
+            print 'Done checking'
+
+if __name__ == '__main__':
+    main()
