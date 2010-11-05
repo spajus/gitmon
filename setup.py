@@ -11,7 +11,7 @@ except ImportError:
 setup(
     name = 'GitMon',
     version = '0.3',
-    packages = find_packages(),
+    packages = find_packages('src'),
     scripts = ['gitmon/gitmon'],
     data_files = ['gitmon/git.png'],
 
@@ -21,6 +21,7 @@ setup(
     author = 'Tomas Varaneckas',
     author_email = 'tomas.varaneckas@gmail.com',
     description = 'GitMon - The Git Repository Monitor',
+    long_description = 'GitMon - The Git Repository Monitor',
     license = 'GPLv3',
     keywords = ['git', 'monitor', 'scm', 'repository'],
     url = 'http://spajus.github.com/gitmon/'
