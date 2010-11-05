@@ -269,10 +269,12 @@ class Update(object):
 class Gitmon(object):
     """Handles the big picture - config loading, checking for updates"""
     
-    def __init__(self, conf_file = None):
+    def __init__(self, conf_file = None, g_verbose = False, g_debug = False):
+
+        global verbose, debug
+        verbose, debug = g_verbose, g_debug
+
         self.config = {}
-        verbose = False
-        debug = False
         self.repos = []
         self.scan_dirs = []
         self.conf_file = os.getenv('GITMON_CONF', '~/.gitmon.conf')
@@ -424,15 +426,6 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             'Using notifier: %s' % notifier_type
         notifier.notify(title, message, image, repo.path_full)
     
-    def set_verbose(self, value):
-        global verbose
-        verbose = value
-
-    def set_debug(self, value):
-        global debug
-        debug = value
-       
-        
 def dump(obj):
     if debug:
         for attr in dir(obj):
