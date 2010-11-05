@@ -8,7 +8,7 @@
 # GitMon launcher script
 
 import sys
-from gitmon import Gitmon
+from gitmon.gitmon import Gitmon
 import sched
 
 #Current version. Print with --version when running

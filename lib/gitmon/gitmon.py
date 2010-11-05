@@ -347,7 +347,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         if self.config.has_key('scheduler.builtin'):
             scheduler_builtin = bool(int(self.config['scheduler.builtin'])) 
         global gitmon_dir
-        gitmon_dir = os.path.dirname(sys.argv[0])
+        gitmon_dir = os.path.dirname(__file__)
 
     def use_builtin_scheduler(self): 
         return scheduler_builtin
@@ -423,7 +423,8 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         image = gitmon_dir + '/git.png'
         notifier = Notifier.create(notifier_type, self.config)
         if verbose:
-            'Using notifier: %s' % notifier_type
+            print 'Using notifier: %s' % notifier_type
+            print 'Using notification icon: %s' % image
         notifier.notify(title, message, image, repo.path_full)
     
 def dump(obj):
