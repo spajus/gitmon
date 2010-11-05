@@ -80,7 +80,7 @@ class GrowlNotifier(Notifier):
     def notify(self, title, message, image, cwd):
         if image:
             image = Growl.Image.imageFromPath(image)
-        sticky = int(self.config['growl.sticky.notifications'])
+        sticky = bool(int(self.config['growl.sticky.notifications']))
         growl = Growl.GrowlNotifier(applicationName='GitMon', \
                 applicationIcon=image, \
                 notifications=['update'], \
@@ -89,3 +89,4 @@ class GrowlNotifier(Notifier):
             growl.register()
             self.registered = True
         growl.notify('update', title, message, icon=image, sticky=sticky)
+        
