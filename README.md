@@ -10,8 +10,13 @@ Requirements:
 * Git
 * growlnotify (http://growl.info/), libnotify-bin (on linux) or any other notification tool
 
-To install:
+To install without downloading source:
+
 sudo easy_install gitmon
+
+or from source folder:
+
+sudo python setup.py install
 
 Usage
 -----
