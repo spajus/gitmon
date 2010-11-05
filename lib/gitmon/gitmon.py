@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
 """
 GitMon - The Git Repository Monitor
 Copyright (C) 2010  Tomas Varaneckas
@@ -21,23 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import os
-sys.path.append(os.path.dirname(sys.argv[0]) + '/lib/gitpython')
 import re    
 import time
 from git import *
 from notifiers import *
-import sched
 
-#Current version. Print with --version when running
-version = "0.2.3"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
+#Should debug output be printed? Override with --debug when running.
+debug = False    
 #Should gitmon notify when new branch is created? Set in config.
 notify_new_branch = 1   
 #Should gitmon notify when new tag is created? Set in config
 notify_new_tag = 1
-#Should debug output be printed? Override with --debug when running.
-debug = False    
 #Should updates be pulled automatically?
 auto_pull = 0
 #Should stale remote references be deleted and notified about?
@@ -275,23 +269,27 @@ class Update(object):
 class Gitmon(object):
     """Handles the big picture - config loading, checking for updates"""
     
-    def __init__(self):
+    def __init__(self, conf_file = None, g_verbose = False, g_debug = False):
+
+        global verbose, debug
+        verbose, debug = g_verbose, g_debug
+
         self.config = {}
         self.repos = []
         self.scan_dirs = []
         self.conf_file = os.getenv('GITMON_CONF', '~/.gitmon.conf')
         self.conf_file = os.path.expanduser(self.conf_file)
+        if conf_file:
+            self.conf_file = os.path.expanduser(conf_file)
         self.load_config()
         self.load_repos()
         self.scan_repos()
+        self.check_config()
         if debug:
             print 'Loaded config: %s' % self.config
-        self.check_config()
     
     def load_config(self):
         """Loads configuration into self.config dictionary"""
-        if '-c' in sys.argv:
-            self.conf_file = sys.argv[sys.argv.index('-c') + 1]
         config_found = os.path.isfile(self.conf_file)
         if not config_found:
             print "Configuration not found! Create ~/.gitmon.conf or define $GITMON_CONF \
@@ -347,9 +345,12 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         if self.config.has_key('check.delay.minutes'):
             check_delay = int(self.config['check.delay.minutes'])
         if self.config.has_key('scheduler.builtin'):
-            scheduler_builtin = int(self.config['scheduler.builtin']) 
+            scheduler_builtin = bool(int(self.config['scheduler.builtin'])) 
         global gitmon_dir
-        gitmon_dir = os.path.dirname(sys.argv[0])
+        gitmon_dir = os.path.dirname(__file__)
+
+    def use_builtin_scheduler(self): 
+        return scheduler_builtin
 
     def load_repos(self):
         """Loads repository definitions which are found in self.config"""
@@ -422,10 +423,10 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         image = gitmon_dir + '/git.png'
         notifier = Notifier.create(notifier_type, self.config)
         if verbose:
-            'Using notifier: %s' % notifier_type
+            print 'Using notifier: %s' % notifier_type
+            print 'Using notification icon: %s' % image
         notifier.notify(title, message, image, repo.path_full)
-       
-        
+    
 def dump(obj):
     if debug:
         for attr in dir(obj):
@@ -435,59 +436,5 @@ def pluralize(word, count):
         return '%ss' % word
     return word
 
-def main():
-    global verbose, debug
-    args = sys.argv[1:]
-    verbose = '-v' in args
-    debug = '--debug' in args
-    if '--version' in args or verbose:
-        print """GitMon v%s  Copyright (C) 2010  Tomas Varaneckas
 
-This program comes with ABSOLUTELY NO WARRANTY; for details read LICENSE file.
-This is free software, and you are welcome to redistribute it
-under certain conditions.""" % version
-        if verbose:
-            print
-    if '--version' in args:
-        sys.exit(0)
-    if '-h' in args or '--help' in args:
-        print 'Please read README.md file for help'
-        sys.exit(0)
-    if scheduler_builtin:
-        scheduler = sched.scheduler(time.time, time.sleep)
-    else:
-        scheduler = None
-    do_check(scheduler)
-    while scheduler and not scheduler.empty():
-        try:
-            scheduler.run()
-        except KeyboardInterrupt as ke:
-            print 'Keyboard interrupt, stopping scheduler'
-            break
-        except Exception as e:
-            print 'Unexpected error: %s' % e
-            dump(e)
-
-def do_check(scheduler):
-    """When checking, scheduler creates new instance of Gitmon 
-    (to refresh configuration and repos). Afterwards a new check
-    gets scheduled."""
-    try:
-        check_again = True
-        app = Gitmon()
-        app.check()
-        app = None
-    except KeyboardInterrupt:
-        print 'Stopping checks due to interrupt'
-        check_again = False
-    if check_again and scheduler:
-        if verbose:
-            print 'Scheduling a check in %s minutes' % check_delay
-        scheduler.enter(check_delay * 60, 1, do_check, ([scheduler]))
-    else:
-        if verbose:
-            print 'Done checking'
-
-if __name__ == '__main__':
-    main()
     
