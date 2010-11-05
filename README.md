@@ -10,14 +10,17 @@ Requirements:
 * Git
 * growlnotify (http://growl.info/), libnotify-bin (on linux) or any other notification tool
 
+To install:
+sudo python setup.py install:
+
 Usage
 -----
 
-    gitmon [-v] [--debug] [-c gitmon.conf]
+    gitmon [--version] [-v] [--debug] [-c gitmon.conf]
 
 You have three  options for placing your configuration file:
 
-1. Create ~/.gitmon.conf 
+1. Create ~/.gitmon.conf
 2. Put gitmon.conf anywhere you want and define GITMON_CONF env variable
 3. Run gitmon with -c /path/to/config.file
 
