@@ -14,7 +14,6 @@ setup(
     packages = find_packages('lib'),
     package_dir = {'' : 'lib'},
     scripts = ['misc/gitmon'],
-    data_files = ['misc/gitmon.conf.example'],
 
     zip_safe = False,
 
