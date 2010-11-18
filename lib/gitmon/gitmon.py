@@ -436,6 +436,11 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             print 'Using notifier: %s' % notifier_type
             print 'Using notification icon: %s' % image
         notifier.notify(title, message, image, repo.path_full)
+
+    def selftest(self):
+        print 'GitMon Self Test'
+        notifier = Notifier.create(notifier_type, self.config)
+        notifier.notify('GitMon Test', 'It Works!', gitmon_dir + '/git.png', gitmon_dir) 
     
 def dump(obj):
     if debug:

@@ -59,6 +59,9 @@ def do_check(scheduler = None, conf_file = None):
     try:
         check_again = True
         app = Gitmon(conf_file, verbose, debug)
+        if '--test' in sys.argv:
+            app.selftest()
+            sys.exit(0)
         if not scheduler:
             if app.use_builtin_scheduler():
                 scheduler = sched.scheduler(time.time, time.sleep)
