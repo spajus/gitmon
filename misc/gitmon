@@ -82,7 +82,7 @@ under certain conditions.""" % version
         if retcode != 0:
             print 'Given command failed: %s' % retcode
         else:
-            print "Updated configuration. Try it with 'gitmon --test'"
+            print "Updated configuration. Try it with 'gitmon test'"
         sys.exit(0)
     
     scheduler = do_check(conf_file = conf_file)
@@ -103,7 +103,7 @@ def do_check(scheduler = None, conf_file = None):
     try:
         check_again = True
         app = Gitmon(conf_file, verbose, debug)
-        if 'test' in args:
+        if 'test' in sys.argv:
             app.selftest()
             sys.exit(0)
         if not scheduler:
