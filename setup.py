@@ -17,8 +17,8 @@ setup(
     zip_safe = False,
 
     package_data = {'': ['*.png', '*.example']},
-    requires = ('gitpython (>=0.2.9)', 'py_Growl (>=0.0.7)'),
-    install_requires = ['gitpython >= 0.2.9', 'py_Growl >= 0.0.7'],
+    requires = ('gitpython (>=0.2.9)', 'py_Growl_2_6 (>=0.0.7)'),
+    install_requires = ['gitpython >= 0.2.9', 'py_Growl_2_6 >= 0.0.7'],
 
     #Metadata for PyPI
     url = 'http://github.com/spajus/gitmon/',
