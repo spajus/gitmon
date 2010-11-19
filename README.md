@@ -21,18 +21,18 @@ sudo python setup.py install
 Usage
 -----
 
-usage: gitmon [-v] [--version] [-c <path>] [-h|--help]
-
-Parameters:
-  -v          Verbose output
-  --version   Prints GitMon version
-  -c <path>   Runs GitMon using configuration file provided in <path>
-  -h, --help  Prints help
-
-Commands:
-              When no command is given, GitMon scans repositories for updates
-  test        Checks configuration and displays test notification
-  configure   Opens GitMon configuration file for editing
+    usage: gitmon [-v] [--version] [-c <path>] [-h|--help]
+    
+    Parameters:
+      -v          Verbose output
+      --version   Prints GitMon version
+      -c <path>   Runs GitMon using configuration file provided in <path>
+      -h, --help  Prints help
+    
+    Commands:
+                  When no command is given, GitMon scans repositories for updates
+      test        Checks configuration and displays test notification
+      configure   Opens GitMon configuration file for editing
 
 You have three options for placing your configuration file:
 
