@@ -438,7 +438,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         notifier.notify(title, message, image, repo.path_full)
 
     def selftest(self):
-        print 'GitMon Self Test'
+        print "GitMon Self Test. You should see a notification right now. Install Growl from http://growl.info if you don't."
         notifier = Notifier.create(notifier_type, self.config)
         notifier.notify('GitMon Test', 'It Works!', gitmon_dir + '/git.png', gitmon_dir) 
     

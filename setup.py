@@ -7,10 +7,9 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-
 setup(
     name = 'GitMon',
-    version = '0.3',
+    version = '0.3.1',
     packages = find_packages('lib'),
     package_dir = {'' : 'lib'},
     scripts = ['misc/gitmon'],

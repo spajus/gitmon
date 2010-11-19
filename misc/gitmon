@@ -5,22 +5,47 @@
 # Copyright (C) 2010  Tomas Varaneckas
 # http://www.varaneckas.com
 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 # GitMon launcher script
 
 import sys
+import os
 from gitmon.gitmon import Gitmon
 import sched
+import subprocess
 
 #Current version. Print with --version when running
-version = "0.3.0"
+version = "0.3.1"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False 
 #Should debug output be printed? Override with --debug when running.
 debug = False    
+#List of known parameters and commands
+known_args = ('-v', '--debug', '--version', '-h', '--help', '-c', 'configure', 'test')
 
 def main():
     global verbose, debug
     args = sys.argv[1:]
+    if '-c' in args:
+        conf_file = args.pop(args.index('-c') + 1)
+    else:
+        conf_file = None
+    unknown_args = [arg for arg in args if arg not in known_args]
+    if unknown_args:
+        print 'Unknown arguments: %s' % ', '.join(unknown_args)
+        args.append('-h')
     verbose = '-v' in args
     debug = '--debug' in args
     if '--version' in args or verbose:
@@ -34,13 +59,32 @@ under certain conditions.""" % version
     if '--version' in args:
         sys.exit(0)
     if '-h' in args or '--help' in args:
-        print 'Please read README.md file for help'
+        print 'usage: gitmon [-v] [--version] [-c <path>] [-h|--help]'
+        print ''
+        print 'Parameters:'
+        print '  -v          Verbose output'
+        print '  --version   Prints GitMon version'
+        print '  -c <path>   Runs GitMon using configuration file provided in <path>'
+        print '  -h, --help  Prints help'
+        print ''
+        print 'Commands:'
+        print '              When no command is given, GitMon scans repositories for updates'
+        print '  test        Checks configuration and displays test notification'
+        print '  configure   Opens GitMon configuration file for editing'
+        sys.exit(0)
+
+    if 'configure' in args:
+        print 'Please type the editor command for opening gitmon configuration file [vim]: '
+        editor = raw_input('> ')
+        if not editor.strip():
+            editor = 'vim'
+        retcode = subprocess.call([editor, os.path.expanduser('~/.gitmon.conf')])
+        if retcode != 0:
+            print 'Given command failed: %s' % retcode
+        else:
+            print "Updated configuration. Try it with 'gitmon --test'"
         sys.exit(0)
     
-    if '-c' in sys.argv:
-        conf_file = sys.argv[sys.argv.index('-c') + 1]
-    else:
-        conf_file = None
     scheduler = do_check(conf_file = conf_file)
     while scheduler and not scheduler.empty():
         try:
@@ -59,7 +103,7 @@ def do_check(scheduler = None, conf_file = None):
     try:
         check_again = True
         app = Gitmon(conf_file, verbose, debug)
-        if '--test' in sys.argv:
+        if 'test' in args:
             app.selftest()
             sys.exit(0)
         if not scheduler:
