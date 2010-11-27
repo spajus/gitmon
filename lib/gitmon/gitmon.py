@@ -140,18 +140,22 @@ class Repository(object):
             # It's possible to simply use self.repo.stale_refs for that, but it makes
             # a remote call
             if auto_delete_stale:
-                for ref in self.repo.remotes.origin.stale_refs:
-                    if hasattr(ref, 'remote_head'):
-                        if ref.remote_head == 'HEAD':
-                            continue
-                        name = ref.remote_head
-                    else:
-                        name = ref.name
-                    up = BranchUpdates(name)
-                    # XXX old commits may get lost within many updates even if branch/tag was just removed 
-                    up.set_removed(ref.commit)
-                    updates.append(up)
-                    RemoteReference.delete(self.repo, ref)
+                try:
+                    for ref in self.repo.remotes.origin.stale_refs:
+                        if hasattr(ref, 'remote_head'):
+                            if ref.remote_head == 'HEAD':
+                                continue
+                            name = ref.remote_head
+                        else:
+                            name = ref.name
+                        up = BranchUpdates(name)
+                        # XXX old commits may get lost within many updates even if branch/tag was just removed 
+                        up.set_removed(ref.commit)
+                        updates.append(up)
+                        RemoteReference.delete(self.repo, ref)
+                except Exception as e:
+                    if verbose:
+                        print 'Failed cleaning up stale refs in repo: %s, %s' % (self.name, e)
             updates = self.filter_updates(updates)
             return updates
         except AssertionError as e:
