@@ -27,5 +27,13 @@ setup(
     description = 'GitMon - The Git Repository Monitor',
     long_description = 'GitMon - The Git Repository Monitor',
     license = 'GPLv3',
-    keywords = ['git', 'monitor', 'scm', 'repository']
+    keywords = ['git', 'monitor', 'scm', 'repository'],
+    classifiers = [
+        'Development Status :: 4 - Beta', 
+        'Environment :: MacOS X',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Utilities'
+    ]
 )
