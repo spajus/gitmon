@@ -19,18 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import os
-import re    
+import re
 import time
 import shutil
 from git import *
 from notifiers import *
 
 #Should gitmon produce verbose output? Override with -v when running.
-verbose = False 
+verbose = False
 #Should debug output be printed? Override with --debug when running.
-debug = False    
+debug = False
 #Should gitmon notify when new branch is created? Set in config.
-notify_new_branch = 1   
+notify_new_branch = 1
 #Should gitmon notify when new tag is created? Set in config
 notify_new_tag = 1
 #Should updates be pulled automatically?
@@ -54,7 +54,7 @@ scheduler_builtin = 0
 
 class Repository(object):
     """Works with GitPython's to produce nice status update information"""
-    
+
     def __init__(self, name, path):
         """Initializes repository object with given name and path"""
         self.name = name
@@ -64,30 +64,34 @@ class Repository(object):
             self.repo = Repo(self.path_full)
         except Exception as e:
             print 'Could not load repository at path: %s: %s' % (self.path_full, e)
-    
+
     def check_status(self):
         """Fetches remote heads and compares the received data to remote refs
          stored in local git repo. Differences are returned as a list of
-         StatusUpdates 
-         
+         StatusUpdates
+
          FIXME: in future removal of tags and branches must also be displayed.
          Local refs: repo.remotes.origin.refs
-         Remote refs: 
+         Remote refs:
          fi = repo.remotes.origin.fetch()
-         check if fi[x].ref is not in local refs and notify. Perhaps delete 
+         check if fi[x].ref is not in local refs and notify. Perhaps delete
          local ref to avoid notification reappearance.
-         
+
          """
         updates = []
-        if verbose: 
+        if verbose:
             print 'Checking repo: %s' % self.name
-        
+
         #get last commits in current remote ref
         local_commits, remote_commits, local_refs, remote_refs = {}, [], [], []
         for rem in self.repo.remotes.origin.refs:
-            local_refs.append(rem.name)
-            local_commits[rem.remote_head] = rem.commit
-        
+            try:
+                local_refs.append(rem.name)
+                local_commits[rem.remote_head] = rem.commit
+            except Exception as e:
+                if verbose:
+                    print 'Failed getting remote branch %s on repo %s: %s' % (rem.name,
+                                                                 self.name, e)
         try:
             #fetch new data
             remote = self.repo.remotes.origin.fetch()
@@ -95,14 +99,14 @@ class Repository(object):
             for fi in remote:
                 remote_refs.append(fi.ref)
                 if hasattr(fi.ref, 'remote_head'):
-                    branch = fi.ref.remote_head       
+                    branch = fi.ref.remote_head
                 else:
                     if notify_new_tag and fi.ref.path.startswith('refs/tags/'):
                         if not fi.ref.path in local_refs:
                             up = BranchUpdates()
                             up.set_new_tag(fi.ref.commit, fi.ref.name)
                             updates.append(up)
-                    else: 
+                    else:
                         print 'warning, unknown ref type: %s' % fi.ref
                         dump(fi.ref)
                     continue
@@ -127,7 +131,7 @@ class Repository(object):
                             up.add(ups)
                             remote_commits.append(remote_commit)
                         updates.append(up)
-                
+
             if auto_pull:
                 try:
                     self.repo.remotes.origin.pull()
@@ -149,7 +153,7 @@ class Repository(object):
                         else:
                             name = ref.name
                         up = BranchUpdates(name)
-                        # XXX old commits may get lost within many updates even if branch/tag was just removed 
+                        # XXX old commits may get lost within many updates even if branch/tag was just removed
                         up.set_removed(ref.commit)
                         updates.append(up)
                         RemoteReference.delete(self.repo, ref)
@@ -167,7 +171,7 @@ class Repository(object):
         """Retrieves updates from remote branch if series of remote commits are newer than local. Limits to max_new_commits."""
         depth = 0
         while depth < max_new_commits:
-            depth += 1 
+            depth += 1
             if re.search('%s(~.*)?' % re.escape(branch), remote.name_rev) and self.is_remote_newer(local, remote):
                 yield Update(remote)
             if remote.parents:
@@ -198,7 +202,7 @@ class Repository(object):
                 update.updates = [commit]
                 filtered_updates.append(update)
         return filtered_updates
-            
+
 
 class BranchUpdates(object):
     """A set of commits that happened in a branch"""
@@ -234,7 +238,7 @@ class BranchUpdates(object):
         return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([str(sta) for sta in self.updates]))
 
 class Update(object):
-    """Contains information about single commit""" 
+    """Contains information about single commit"""
     def __init__(self, commit, new_branch=False, new_tag=False, deleted=False):
         self.files = []
         if new_branch or new_tag or deleted:
@@ -242,7 +246,7 @@ class Update(object):
             self.author = ''
         else:
             self.author = commit.committer.name.strip()
-        
+
         self.date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(commit.committed_date))
         if new_branch:
             self.message = 'New branch created'
@@ -266,14 +270,14 @@ class Update(object):
                 mess += '\nFiles:\n%s' % '\n'.join(self.files[:max_files_info])
                 if len(self.files) > max_files_info:
                     more_files = len(self.files) - max_files_info
-                    mess += '\n(%s more %s)' % (more_files, pluralize('file', more_files)) 
+                    mess += '\n(%s more %s)' % (more_files, pluralize('file', more_files))
             else:
                 mess += '\nFiles:\n%s' % '\n'.join(self.files)
         return mess
 
 class Gitmon(object):
     """Handles the big picture - config loading, checking for updates"""
-    
+
     def __init__(self, conf_file = None, g_verbose = False, g_debug = False):
 
         global verbose, debug
@@ -292,7 +296,7 @@ class Gitmon(object):
         self.check_config()
         if debug:
             print 'Loaded config: %s' % self.config
-    
+
     def load_config(self):
         """Loads configuration into self.config dictionary"""
         global gitmon_dir
@@ -339,7 +343,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         else:
             if verbose:
                 print 'Configuration OK, tracking %s repositories' % len(self.repos)
-                        
+
     def set_globals(self):
         """Sets global parameters from configuration"""
         global notify_new_branch, notify_new_tag, auto_pull, max_new_commits, max_files_info
@@ -361,9 +365,9 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         if self.config.has_key('check.delay.minutes'):
             check_delay = int(self.config['check.delay.minutes'])
         if self.config.has_key('scheduler.builtin'):
-            scheduler_builtin = bool(int(self.config['scheduler.builtin'])) 
+            scheduler_builtin = bool(int(self.config['scheduler.builtin']))
 
-    def use_builtin_scheduler(self): 
+    def use_builtin_scheduler(self):
         return scheduler_builtin
 
     def load_repos(self):
@@ -376,9 +380,9 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
                 else:
                     name = repo.replace('repo.', '')
                 path = self.config['%s.path' % repo]
-                if verbose: 
+                if verbose:
                     print 'Tracking repo: "%s" at %s' % (name, path)
-                self.repos.append(Repository(name, path))    
+                self.repos.append(Repository(name, path))
 
     def scan_repos(self):
         """Scans provided dirs and recursively searches for repositories"""
@@ -407,7 +411,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
             dir = '%s/%s' % (root, f)
             if os.path.isdir(dir):
                 if self.is_git_repo(dir):
-                    if verbose: 
+                    if verbose:
                         print 'Found git repo: %s' % dir
                     yield Repository('%s (%s)' % (f, root_name), dir)
                 else:
@@ -427,10 +431,10 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         for repo in self.repos:
             if hasattr(repo, 'repo'):
                 yield (repo, repo.check_status())
-            
-    def notify(self, repo, message):        
+
+    def notify(self, repo, message):
         """Notifies user about status updates using given notifier.type
-        from config. Replaces ${message} with update status message, 
+        from config. Replaces ${message} with update status message,
         ${title} with repo name and ${image} with path to git.png."""
         title = '%s\n%s' % (repo.name, repo.path.replace(os.path.expanduser('~'), '~'))
         message = message.strip()
@@ -444,8 +448,8 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
     def selftest(self):
         print "GitMon Self Test. You should see a notification right now. Install Growl from http://growl.info if you don't."
         notifier = Notifier.create(notifier_type, self.config)
-        notifier.notify('GitMon Test', 'It Works!', gitmon_dir + '/git.png', gitmon_dir) 
-    
+        notifier.notify('GitMon Test', 'It Works!', gitmon_dir + '/git.png', gitmon_dir)
+
 def dump(obj):
     if debug:
         for attr in dir(obj):
@@ -456,4 +460,4 @@ def pluralize(word, count):
     return word
 
 
-    
+
