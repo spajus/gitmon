@@ -9,12 +9,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -27,11 +27,11 @@ import sched
 import subprocess
 
 #Current version. Print with --version when running
-version = "0.3.2"
+version = "0.3.3"
 #Should gitmon produce verbose output? Override with -v when running.
-verbose = False 
+verbose = False
 #Should debug output be printed? Override with --debug when running.
-debug = False    
+debug = False
 #List of known parameters and commands
 known_args = ('-v', '--debug', '--version', '-h', '--help', '-c', 'configure', 'test')
 
@@ -84,7 +84,7 @@ under certain conditions.""" % version
         else:
             print "Updated configuration. Try it with 'gitmon test'"
         sys.exit(0)
-    
+
     scheduler = do_check(conf_file = conf_file)
     while scheduler and not scheduler.empty():
         try:
@@ -97,7 +97,7 @@ under certain conditions.""" % version
             dump(e)
 
 def do_check(scheduler = None, conf_file = None):
-    """When checking, scheduler creates new instance of Gitmon 
+    """When checking, scheduler creates new instance of Gitmon
     (to refresh configuration and repos). Afterwards a new check
     gets scheduled."""
     try:

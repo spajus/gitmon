@@ -429,8 +429,12 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
 
     def get_repo_updates(self):
         for repo in self.repos:
-            if hasattr(repo, 'repo'):
-                yield (repo, repo.check_status())
+            try:
+                if hasattr(repo, 'repo'):
+                    yield (repo, repo.check_status())
+            except Exception as e:
+                if verbose:
+                    print 'Failed checking updates for %s: %s' % (repo.name, e)
 
     def notify(self, repo, message):
         """Notifies user about status updates using given notifier.type
