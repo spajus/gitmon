@@ -80,7 +80,7 @@ class Repository(object):
          """
         updates = []
         if verbose:
-            print 'Checking repo: %s' % self.name
+            print u'Checking repo: %s' % self.name
 
         #get last commits in current remote ref
         local_commits, remote_commits, local_refs, remote_refs = {}, [], [], []
@@ -90,7 +90,7 @@ class Repository(object):
                 local_commits[rem.remote_head] = rem.commit
             except Exception as e:
                 if verbose:
-                    print 'Failed getting remote branch %s on repo %s: %s' % (rem.name,
+                    print u'Failed getting remote branch %s on repo %s: %s' % (rem.name,
                                                                  self.name, e)
         try:
             #fetch new data
@@ -107,7 +107,7 @@ class Repository(object):
                             up.set_new_tag(fi.ref.commit, fi.ref.name)
                             updates.append(up)
                     else:
-                        print 'warning, unknown ref type: %s' % fi.ref
+                        print u'warning, unknown ref type: %s' % fi.ref
                         dump(fi.ref)
                     continue
                 try: #http://byronimo.lighthouseapp.com/projects/51787-gitpython/tickets/44-remoteref-fails-when-there-is-character-in-the-name
@@ -137,7 +137,7 @@ class Repository(object):
                     self.repo.remotes.origin.pull()
                 except Exception as e:
                     if verbose:
-                        print 'Failed pulling repo: %s, %s' % (self.name, e)
+                        print u'Failed pulling repo: %s, %s' % (self.name, e)
             # At this point we're done with checking for new additions, now let's check
             # if anything was removed
 
@@ -159,12 +159,12 @@ class Repository(object):
                         RemoteReference.delete(self.repo, ref)
                 except Exception as e:
                     if verbose:
-                        print 'Failed cleaning up stale refs in repo: %s, %s' % (self.name, e)
+                        print u'Failed cleaning up stale refs in repo: %s, %s' % (self.name, e)
             updates = self.filter_updates(updates)
             return updates
         except AssertionError as e:
             if verbose:
-                print 'Failed checking for updates: %s' % self.path
+                print u'Failed checking for updates: %s' % self.path
                 dump(e)
 
     def get_updates(self, branch, local, remote):
@@ -235,7 +235,7 @@ class BranchUpdates(object):
 
     def __str__(self):
         """Creates a string representation of all updates in the branch"""
-        return '[%s]%s\n%s\n' % (self.branch, self.type, '\n'.join([str(sta) for sta in self.updates]))
+        return u'[%s]%s\n%s\n' % (self.branch, self.type, u'\n'.join([unicode(sta) for sta in self.updates]))
 
 class Update(object):
     """Contains information about single commit"""
@@ -425,7 +425,7 @@ repositories or scanned roots in your configuration. Refer to gitmon.conf.exampl
         """Checks the repositories and displays notifications"""
         for repo, st in self.get_repo_updates():
             if st:
-                self.notify(repo, '\n'.join([str(sta) for sta in st]))
+                self.notify(repo, u'\n'.join([unicode(sta) for sta in st]))
 
     def get_repo_updates(self):
         for repo in self.repos:

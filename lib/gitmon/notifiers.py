@@ -53,21 +53,21 @@ class CommandLineNotifier(Notifier):
         if '${title}' in notif_cmd:
             notif_cmd[notif_cmd.index('${title}')] = title
         if '${image}' in notif_cmd:
-            notif_cmd[notif_cmd.index('${image}')] = image 
+            notif_cmd[notif_cmd.index('${image}')] = image
         self.exec_notification(notif_cmd, cwd)
-       
+
     def exec_notification(self, notif_cmd, path):
         """Does the actual execution of notification command"""
         proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
         output, _ = proc.communicate()
-        retcode = proc.wait()        
+        retcode = proc.wait()
         if retcode != 0:
             print 'Error while notifying: %s, %s' % (retcode, args)
 
 class GrowlNotifier(Notifier):
 
     inst = None
-   
+
     @classmethod
     def instance(cls, config):
         if not GrowlNotifier.inst:
@@ -86,4 +86,4 @@ class GrowlNotifier(Notifier):
             growl.register()
             self.registered = True
         growl.notify('update', title, message, icon=image, sticky=sticky)
-        
+
