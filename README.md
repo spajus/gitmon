@@ -8,7 +8,7 @@ Requirements:
 
 * Python 2.6+
 * Git
-* growlnotify (http://growl.info/), libnotify-bin (on linux) or any other notification tool
+* growlnotify (http://growl.info/), python-notify (for libnotify on linux) or a command line tool for notifications
 
 To install without downloading source:
 
@@ -18,17 +18,19 @@ or from source folder:
 
 sudo python setup.py install
 
+When building from source, you may need to install gitpython (sudo easy_install gitpython).
+
 Usage
 -----
 
     usage: gitmon [-v] [--version] [-c <path>] [-h|--help]
-    
+
     Parameters:
       -v          Verbose output
       --version   Prints GitMon version
       -c <path>   Runs GitMon using configuration file provided in <path>
       -h, --help  Prints help
-    
+
     Commands:
                   When no command is given, GitMon scans repositories for updates
       test        Checks configuration and displays test notification
