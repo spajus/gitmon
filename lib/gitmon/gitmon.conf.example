@@ -4,7 +4,7 @@
 # Notifier type #
 #################
 
-#Notifier implementation. Possible choices: 'command.line', 'growl'
+#Notifier implementation. Possible choices: 'command.line', 'growl', 'libnotify'
 notifier.type = growl
 
 ##########################
@@ -13,14 +13,14 @@ notifier.type = growl
 
 #These options are relevant to notifier.type = growl
 
-#Keep notifications on screen untill you close them 
+#Keep notifications on screen untill you close them
 growl.sticky.notifications = 0
 
 #################################
 # Command Line Notifier options #
 #################################
 
-#When you are using notifier.type = command.line, you have to define notification.command  
+#When you are using notifier.type = command.line, you have to define notification.command
 
 #In linux where libnotify-bin is available:
 #command.line.cmd = notification-send "${title}" "${message}"
@@ -69,7 +69,7 @@ check.delay.minutes = 5
 
 #A variable which will be substituted. You can have many of these
 #In following example ${repos.root} will be replaced with ~/Development/repos
-repos.root = ~/Dvelopment/repos
+repos.root = ~/Development/repos
 
 #Example variable
 #example.var = Something

@@ -27,7 +27,7 @@ import sched
 import subprocess
 
 #Current version. Print with --version when running
-version = "0.3.3"
+version = "0.3.4"
 #Should gitmon produce verbose output? Override with -v when running.
 verbose = False
 #Should debug output be printed? Override with --debug when running.
