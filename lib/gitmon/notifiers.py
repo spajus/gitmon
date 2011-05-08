@@ -17,11 +17,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import sys
 import subprocess
 try:
     import Growl
 except Exception:
-    pass
+    try:
+        import pygtk
+        pygtk.require('2.0')
+        import pynotify
+    except Exception:
+        print 'Failed importing both Growl and pygtk/pynotify'
+        sys.exit(-1)
 
 class Notifier(object):
 
@@ -38,6 +45,27 @@ class Notifier(object):
             return CommandLineNotifier.instance(config)
         if type == 'growl':
             return GrowlNotifier.instance(config)
+        if type == 'libnotify':
+            return LibnotifyNotifier.instance(config)
+
+class LibnotifyNotifier(Notifier):
+
+    inst = None
+
+    @classmethod
+    def instance(cls, config):
+        if not LibnotifyNotifier.inst:
+            LibnotifyNotifier.inst = LibnotifyNotifier(config)
+        return LibnotifyNotifier.inst
+
+    def notify(self, title, message, image, cwd):
+        if image:
+            image = 'file://%s' % image
+            notification = pynotify.Notification(title, message, image)
+        else:
+            notification = pynotify.Notification(title, message)
+        if not notification.show():
+            print "Failed showing python libnotify notification"
 
 class CommandLineNotifier(Notifier):
 
