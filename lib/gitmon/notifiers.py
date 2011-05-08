@@ -18,9 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import subprocess
-import sys
-if sys.platform.startswith("darwin"):
+try:
     import Growl
+except Exception:
+    pass
 
 class Notifier(object):
 
