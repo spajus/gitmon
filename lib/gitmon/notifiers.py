@@ -19,16 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import subprocess
-try:
+if sys.platform.startswith('darwin') or sys.platform.startswith('win'):
     import Growl
-except Exception:
-    try:
-        import pygtk
-        pygtk.require('2.0')
-        import pynotify
-    except Exception:
-        print 'Failed importing both Growl and pygtk/pynotify'
-        sys.exit(-1)
+else:
+    import pygtk
+    pygtk.require('2.0')
+    import pynotify
 
 class Notifier(object):
 
