@@ -23,7 +23,9 @@ growl.sticky.notifications = 0
 #When you are using notifier.type = command.line, you have to define notification.command
 
 #In linux where libnotify-bin is available:
-#command.line.cmd = notification-send "${title}" "${message}"
+#command.line.cmd = notification-send ${title} ${message}
+# In debian-based distributions, we usually find notify-send
+#command.line.cmd = notify-send ${title} ${message} -i ${image}
 
 #Windows users may try to configure their command by using http://www.growlforwindows.com/gfw/
 
