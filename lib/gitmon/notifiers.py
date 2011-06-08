@@ -86,10 +86,11 @@ class CommandLineNotifier(Notifier):
     def exec_notification(self, notif_cmd, path):
         """Does the actual execution of notification command"""
         proc = subprocess.Popen(notif_cmd, cwd=path, stdout=subprocess.PIPE)
-        output, _ = proc.communicate()
+        # usually error information comes out on stderr
+        output, errdata = proc.communicate()
         retcode = proc.wait()
         if retcode != 0:
-            print 'Error while notifying: %s, %s' % (retcode, args)
+            print 'Error while notifying: %s: %s' % (retcode, errdata)
 
 class GrowlNotifier(Notifier):
 
