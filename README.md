@@ -12,11 +12,11 @@ Requirements:
 
 To install without downloading source:
 
-sudo easy_install gitmon
+  sudo easy_install gitmon
 
 or from source folder:
 
-sudo python setup.py install
+  sudo python setup.py install
 
 When building from source, you may need to install gitpython (sudo easy_install gitpython).
 
