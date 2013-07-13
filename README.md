@@ -1,6 +1,8 @@
 GitMon - The Git Repository Monitor
 ===================================
 
+[Quick Start Video](http://blip.tv/tomas-varaneckas/gitmon-quick-start-4429076)
+
 Installation
 ------------
 
