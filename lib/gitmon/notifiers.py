@@ -25,6 +25,7 @@ else:
     import pygtk
     pygtk.require('2.0')
     import pynotify
+    pynotify.init("GitMon")
 
 class Notifier(object):
 
